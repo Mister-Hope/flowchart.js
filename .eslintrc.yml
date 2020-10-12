@@ -8,7 +8,9 @@ extends:
   - prettier
 
 ignorePatterns:
-  - "!src/**"
+  - "*.js"
+  - "*.d.ts"
+  - "!webpack.config.js"
 
 overrides:
   - files:

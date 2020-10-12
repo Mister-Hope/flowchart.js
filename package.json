@@ -1,52 +1,52 @@
 {
-  "author": "adrai",
   "name": "flowchart.js",
-  "version": "1.14.2",
-  "main": "./index",
-  "engines": {
-    "node": ">=10.0.0"
+  "version": "1.0.0-alpha.0",
+  "author": "Mister-Hope",
+  "description": "Flowchart support",
+  "main": "./lib/index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "build:dev": "webpack",
+    "build:js": "cross-env NODE_ENV=production webpack --config webpack.config.old.js",
+    "build:js:dev": "webpack --config webpack.config.old.js",
+    "watch": "webpack -w",
+    "watch:js": "cross-env NODE_ENV=production webpack --config webpack.config.old.js -w",
+    "tsc": "tsc",
+    "ts:watch": "tsc --watch",
+    "lint": "prettier --check --write . && eslint . --ext .ts,.js --fix",
+    "lint:check": "prettier --check . && eslint . --ext .ts,.js"
   },
   "dependencies": {
+    "@types/raphael": "^2.3.0",
     "raphael": "2.3.0"
   },
-  "types": "types/index.d.ts",
   "devDependencies": {
-    "@types/raphael": "^2.3.0",
+    "@types/node": "^14.11.8",
+    "@types/terser-webpack-plugin": "^4.2.0",
     "@typescript-eslint/eslint-plugin": "4.4.0",
     "@typescript-eslint/parser": "4.4.0",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "cross-env": "^7.0.2",
     "eslint": "7.11.0",
     "eslint-config-prettier": "6.12.0",
     "eslint-plugin-prettier": "3.1.4",
-    "express": ">=4.17.1",
-    "html-webpack-plugin": "^4.5.0",
-    "moment": "^2.29.1",
+    "html-webpack-plugin": "4.5.0",
     "prettier": "2.1.2",
-    "typescript": "^4.0.3",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "^5.0.0",
-    "webpack-cli": "^4.0.0",
-    "webpack-dev-middleware": "^3.7.2",
-    "webpack-hot-middleware": "^2.25.0"
-  },
-  "scripts": {
-    "tsc": "tsc",
-    "init": "git submodule init && git submodule update && git submodule status",
-    "start": "node devserver.js",
-    "lint": "prettier --check --write . && eslint . --ext .ts --fix",
-    "build:unminified": "NODE_ENV=production webpack -d --config webpack.config.js",
-    "build:test": "webpack",
-    "build:minified": "NODE_ENV=production MINIFIED=1 webpack -d --config webpack.config.js",
-    "build": "npm run build:unminified && npm run build:minified && cp ./release/flowchart.js ./site/flowchart-latest.js",
-    "test": "npm run lint"
+    "terser-webpack-plugin": "4.2.3",
+    "ts-loader": "8.0.4",
+    "ts-node": "^9.0.0",
+    "typescript": "4.0.3",
+    "uglifyjs-webpack-plugin": "2.2.0",
+    "webpack": "5.0.0",
+    "webpack-cli": "4.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/adrai/flowchart.js.git"
+    "url": "https://github.com/Mister-Hope/flowchart.js.git"
   },
   "keywords": [
-    "flowchart",
-    "client",
-    "script"
+    "flowchart"
   ],
   "browserslist": [
     "last 5 version",

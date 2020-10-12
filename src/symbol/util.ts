@@ -1,7 +1,14 @@
+import { RaphaelElement } from "raphael";
 import { checkLineIntersection, drawLine } from "../action";
 
-export default class Symbol {
-  constructor(chart, options, symbol) {
+export default class FlowChartSymbol {
+  text: SVGGraphicsElement;
+
+  constructor(
+    chart,
+    options,
+    symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>
+  ) {
     this.chart = chart;
     this.group = this.chart.paper.set();
     this.symbol = symbol;
@@ -42,9 +49,7 @@ export default class Symbol {
     if (fontF) this.text.attr({ "font-family": fontF });
     if (fontW) this.text.attr({ "font-weight": fontW });
 
-    if (options.link) {
-      this.text.attr("href", options.link);
-    }
+    if (options.link) this.text.attr("href", options.link);
 
     //ndrqu Add click function with event and options params
     if (options.function) {
@@ -52,8 +57,8 @@ export default class Symbol {
 
       this.text.node.addEventListener(
         "click",
-        function (evt) {
-          window[options.function](evt, options);
+        (event) => {
+          window[options.function](event, options);
         },
         false
       );
@@ -95,27 +100,23 @@ export default class Symbol {
 
       symbol.node.setAttribute("class", this.getAttr("class"));
 
-      if (options.link) {
-        symbol.attr("href", options.link);
-      }
-      if (options.target) {
-        symbol.attr("target", options.target);
-      }
+      if (options.link) symbol.attr("href", options.link);
+
+      if (options.target) symbol.attr("target", options.target);
 
       //ndrqu Add click function with event and options params
       if (options.function) {
         symbol.node.addEventListener(
           "click",
-          function (evt) {
-            window[options.function](evt, options);
+          (event) => {
+            window[options.function](event, options);
           },
           false
         );
         symbol.attr({ cursor: "pointer" });
       }
-      if (options.key) {
-        symbol.node.id = options.key;
-      }
+
+      if (options.key) symbol.node.id = options.key;
 
       this.group.push(symbol);
       symbol.insertBefore(this.text);

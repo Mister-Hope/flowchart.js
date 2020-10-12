@@ -1,11 +1,21 @@
-import * as Raphael from "raphael";
+import Raphael, { RaphaelPaper, RaphaelSet } from "raphael";
 import { merge } from "./util";
 import { defaultConfig } from "./config";
 import Condition from "./symbol/condition";
 import Parallel from "./symbol/parallel";
+import { DrawOptions } from "./options";
+import FlowChartSymbol from "./symbol/util";
 
 export default class FlowChart {
-  constructor(container, options = {}) {
+  options: DrawOptions;
+
+  symbols: FlowChartSymbol[];
+  lines: any[];
+  start: null | FlowChartSymbol;
+
+  paper: RaphaelPaper<"SVG" | "VML"> & RaphaelSet<"SVG" | "VML">;
+
+  constructor(container: string | HTMLElement, options: DrawOptions = {}) {
     this.paper = new Raphael(container);
 
     this.options = merge(options, defaultConfig);
@@ -15,52 +25,50 @@ export default class FlowChart {
     this.start = null;
   }
 
-  handle(symbol) {
-    if (this.symbols.indexOf(symbol) <= -1) {
-      this.symbols.push(symbol);
-    }
+  handle(symbol: FlowChartSymbol): FlowChartSymbol {
+    if (this.symbols.indexOf(symbol) <= -1) this.symbols.push(symbol);
 
     const flowChart = this;
 
     if (symbol instanceof Condition) {
-      symbol.yes = (nextSymbol) => {
+      symbol.yes = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.yes_symbol = nextSymbol;
-        if (symbol.no_symbol) {
-          symbol.pathOk = true;
-        }
+
+        if (symbol.no_symbol) symbol.pathOk = true;
+
         return flowChart.handle(nextSymbol);
       };
-      symbol.no = (nextSymbol) => {
+
+      symbol.no = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.no_symbol = nextSymbol;
-        if (symbol.yes_symbol) {
-          symbol.pathOk = true;
-        }
+
+        if (symbol.yes_symbol) symbol.pathOk = true;
+
         return flowChart.handle(nextSymbol);
       };
     } else if (symbol instanceof Parallel) {
-      symbol.path1 = function (nextSymbol) {
+      symbol.path1 = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.path1_symbol = nextSymbol;
-        if (symbol.path2_symbol) {
-          symbol.pathOk = true;
-        }
+        if (symbol.path2_symbol) symbol.pathOk = true;
+
         return flowChart.handle(nextSymbol);
       };
-      symbol.path2 = function (nextSymbol) {
+      symbol.path2 = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.path2_symbol = nextSymbol;
-        if (symbol.path3_symbol) {
-          symbol.pathOk = true;
-        }
+
+        if (symbol.path3_symbol) symbol.pathOk = true;
+
         return flowChart.handle(nextSymbol);
       };
-      symbol.path3 = function (nextSymbol) {
+      symbol.path3 = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.path3_symbol = nextSymbol;
-        if (symbol.path1_symbol) {
-          symbol.pathOk = true;
-        }
+
+        if (symbol.path1_symbol) symbol.pathOk = true;
+
         return flowChart.handle(nextSymbol);
       };
     } else
-      symbol.then = (nextSymbol) => {
+      symbol.then = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.next = nextSymbol;
         symbol.pathOk = true;
         return flowChart.handle(nextSymbol);
@@ -69,16 +77,14 @@ export default class FlowChart {
     return symbol;
   }
 
-  startWith(symbol) {
+  startWith(symbol: FlowChartSymbol): FlowChartSymbol {
     this.start = symbol;
     return this.handle(symbol);
   }
 
-  render() {
+  render(): void {
     let maxWidth = 0,
       maxHeight = 0,
-      i = 0,
-      len = 0,
       maxX = 0,
       maxY = 0,
       minX = 0,
@@ -86,76 +92,63 @@ export default class FlowChart {
       symbol,
       line;
 
-    for (i = 0, len = this.symbols.length; i < len; i++) {
-      symbol = this.symbols[i];
-      if (symbol.width > maxWidth) {
-        maxWidth = symbol.width;
-      }
-      if (symbol.height > maxHeight) {
-        maxHeight = symbol.height;
-      }
-    }
+    this.symbols.forEach((symbol) => {
+      if (symbol.width > maxWidth) maxWidth = symbol.width;
+      if (symbol.height > maxHeight) maxHeight = symbol.height;
+    });
 
-    for (i = 0, len = this.symbols.length; i < len; i++) {
-      symbol = this.symbols[i];
+    this.symbols.forEach((symbol) => {
       symbol.shiftX(
         this.options.x +
           (maxWidth - symbol.width) / 2 +
           this.options["line-width"]
       );
+
       symbol.shiftY(
         this.options.y +
           (maxHeight - symbol.height) / 2 +
           this.options["line-width"]
       );
-    }
+    });
 
     this.start.render();
 
-    for (i = 0, len = this.symbols.length; i < len; i++) {
-      symbol = this.symbols[i];
+    this.symbols.forEach((symbol) => {
       symbol.renderLines();
-    }
+    });
 
     maxX = this.maxXFromLine;
 
     let x;
     let y;
 
-    for (i = 0, len = this.symbols.length; i < len; i++) {
-      symbol = this.symbols[i];
+    this.symbols.forEach((symbol) => {
       const leftX = symbol.getX();
+
       x = leftX + symbol.width;
       y = symbol.getY() + symbol.height;
-      if (leftX < minX) {
-        minX = leftX;
-      }
-      if (x > maxX) {
-        maxX = x;
-      }
-      if (y > maxY) {
-        maxY = y;
-      }
-    }
 
-    for (i = 0, len = this.lines.length; i < len; i++) {
-      line = this.lines[i].getBBox();
+      if (leftX < minX) minX = leftX;
+
+      if (x > maxX) maxX = x;
+
+      if (y > maxY) maxY = y;
+    });
+
+    for (let index = 0, { length } = this.lines; index < length; index++) {
+      line = this.lines[index].getBBox();
       x = line.x;
       y = line.y;
       const x2 = line.x2;
       const y2 = line.y2;
-      if (x < minX) {
-        minX = x;
-      }
-      if (y < minY) {
-        minY = y;
-      }
-      if (x2 > maxX) {
-        maxX = x2;
-      }
-      if (y2 > maxY) {
-        maxY = y2;
-      }
+
+      if (x < minX) minX = x;
+
+      if (y < minY) minY = y;
+
+      if (x2 > maxX) maxX = x2;
+
+      if (y2 > maxY) maxY = y2;
     }
 
     const scale = this.options["scale"];
@@ -173,10 +166,11 @@ export default class FlowChart {
     this.paper.setViewBox(minX, minY, width, height, true);
   }
 
-  clean() {
+  clean(): void {
     if (this.paper) {
       const paperDom = this.paper.canvas;
-      paperDom.parentNode && paperDom.parentNode.removeChild(paperDom);
+
+      if (paperDom.parentNode) paperDom.parentNode.removeChild(paperDom);
     }
   }
 }

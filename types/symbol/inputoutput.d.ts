@@ -1,5 +1,5 @@
-import Symbol from "./util";
-export default class InputOutput extends Symbol {
+import FlowChartSymbol from "./util";
+export default class InputOutput extends FlowChartSymbol {
     constructor(chart: any, options?: {});
     getLeft(): {
         x: any;

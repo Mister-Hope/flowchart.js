@@ -1,5 +1,7 @@
-export default class Symbol {
-    constructor(chart: any, options: any, symbol: any);
+import { RaphaelElement } from "raphael";
+export default class FlowChartSymbol {
+    text: SVGGraphicsElement;
+    constructor(chart: any, options: any, symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>);
     getAttr(attName: any): any;
     initialize(): void;
     getCenter(): {

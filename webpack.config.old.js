@@ -1,5 +1,4 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 module.exports = {
@@ -28,5 +27,4 @@ module.exports = {
     host: "0.0.0.0",
     open: true,
   },
-  plugins: [new HtmlWebpackPlugin()],
 };

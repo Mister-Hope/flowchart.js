@@ -1,6 +1,6 @@
-import Symbol from "./util";
+import FlowChartSymbol from "./util";
 
-export default class Subroutine extends Symbol {
+export default class Subroutine extends FlowChartSymbol {
   constructor(chart, options = {}) {
     const symbol = chart.paper.rect(0, 0, 0, 0);
     super(chart, options, symbol);

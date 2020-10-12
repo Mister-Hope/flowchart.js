@@ -1,4 +1,6 @@
-export const defaultConfig = {
+import { DrawOptions } from "./options";
+
+export const defaultConfig: DrawOptions = {
   x: 0,
   y: 0,
   "line-width": 3,

@@ -9,7 +9,7 @@
     "diagnostics": false,
     "downlevelIteration": false,
     "experimentalDecorators": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "inlineSourceMap": false,
@@ -30,9 +30,10 @@
     "strictPropertyInitialization": true,
     "lib": ["DOM"],
     "baseUrl": "./",
-    "module": "CommonJS",
-    "target": "ES5",
+    "module": "commonjs",
+    "target": "es5",
     "outDir": "./lib",
     "declarationDir": "./types"
-  }
+  },
+  "include": ["src/**/*.ts"]
 }

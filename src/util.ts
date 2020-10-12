@@ -1,43 +1,22 @@
-export const merge = (options, defaultOptions) => {
-  if (!options || typeof options === "function") {
-    return defaultOptions;
-  }
+export const merge = <T = Record<string, any>, U extends T = T>(
+  options: U,
+  defaultOptions: T
+): U => {
+  if (!options || typeof options === "function") return defaultOptions as U;
 
-  const merged = {};
-  for (var attrname in defaultOptions) {
-    merged[attrname] = defaultOptions[attrname];
-  }
+  const merged: Partial<U> = {};
 
-  for (attrname in options) {
+  for (const attrname in defaultOptions)
+    merged[attrname] = defaultOptions[attrname] as any;
+
+  for (const attrname in options) {
     if (options[attrname]) {
       if (typeof merged[attrname] === "object") {
-        merged[attrname] = merge(merged[attrname], options[attrname]);
+        merged[attrname] = merge(merged[attrname] as any, options[attrname]);
       } else {
         merged[attrname] = options[attrname];
       }
     }
   }
-  return merged;
-};
-
-export const inherits = (ctor, superCtor) => {
-  if (typeof Object.create === "function") {
-    // implementation from standard node.js 'util' module
-    ctor.super_ = superCtor;
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true,
-      },
-    });
-  } else {
-    // old school shim for old browsers
-    ctor.super_ = superCtor;
-    const TempCtor = function () {};
-    TempCtor.prototype = superCtor.prototype;
-    ctor.prototype = new TempCtor();
-    ctor.prototype.constructor = ctor;
-  }
+  return merged as U;
 };

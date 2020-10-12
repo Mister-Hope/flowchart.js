@@ -1,4 +1,5 @@
 import FlowChart from "./chart";
+import { DrawOptions, SymbolOptions } from "./options";
 
 import Condition from "./symbol/condition";
 import End from "./symbol/end";
@@ -7,208 +8,212 @@ import Operation from "./symbol/operation";
 import Parallel from "./symbol/parallel";
 import Start from "./symbol/start";
 import Subroutine from "./symbol/subroutine";
+import FlowchartSymbol from "./symbol/util";
 
-export const parse = (input) => {
-  input = input || "";
-  input = input.trim();
+const chart = {
+  symbols: {},
+  start: null,
+  diagram: null as null | FlowChart,
+  drawSVG(container: HTMLElement | string, options: DrawOptions) {
+    const self = this;
 
-  const chart = {
-    symbols: {},
-    start: null,
-    drawSVG: function (container, options) {
-      const self = this;
+    if (this.diagram) this.diagram.clean();
 
-      if (this.diagram) {
-        this.diagram.clean();
+    const diagram = new FlowChart(container, options);
+    this.diagram = diagram;
+
+    const dispSymbols: Record<string, FlowchartSymbol> = {};
+
+    const getDisplaySymbol = (options: SymbolOptions): FlowchartSymbol => {
+      if (dispSymbols[options.key]) return dispSymbols[options.key];
+
+      switch (options.symbolType) {
+        case "start":
+          dispSymbols[options.key] = new Start(diagram, options);
+          break;
+        case "end":
+          dispSymbols[options.key] = new End(diagram, options);
+          break;
+        case "operation":
+          dispSymbols[options.key] = new Operation(diagram, options);
+          break;
+        case "inputoutput":
+          dispSymbols[options.key] = new InputOutput(diagram, options);
+          break;
+        case "subroutine":
+          dispSymbols[options.key] = new Subroutine(diagram, options);
+          break;
+        case "condition":
+          dispSymbols[options.key] = new Condition(diagram, options);
+          break;
+        case "parallel":
+          dispSymbols[options.key] = new Parallel(diagram, options);
+          break;
+        default:
+          throw new Error("Wrong symbol type!");
       }
 
-      const diagram = new FlowChart(container, options);
-      this.diagram = diagram;
-      const dispSymbols = {};
+      return dispSymbols[options.key];
+    };
 
-      function getDisplaySymbol(s) {
-        if (dispSymbols[s.key]) {
-          return dispSymbols[s.key];
+    (function constructChart(symbol, prevDisp, prev) {
+      const dispSymb = getDisplaySymbol(symbol);
+
+      if (self.start === symbol) {
+        diagram.startWith(dispSymb);
+      } else if (prevDisp && prev && !prevDisp.pathOk) {
+        if (prevDisp instanceof Condition) {
+          if (prev.yes === symbol) {
+            prevDisp.yes(dispSymb);
+          }
+          if (prev.no === symbol) {
+            prevDisp.no(dispSymb);
+          }
+        } else if (prevDisp instanceof Parallel) {
+          if (prev.path1 === symbol) {
+            prevDisp.path1(dispSymb);
+          }
+          if (prev.path2 === symbol) {
+            prevDisp.path2(dispSymb);
+          }
+          if (prev.path3 === symbol) {
+            prevDisp.path3(dispSymb);
+          }
+        } else {
+          prevDisp.then(dispSymb);
         }
-
-        switch (s.symbolType) {
-          case "start":
-            dispSymbols[s.key] = new Start(diagram, s);
-            break;
-          case "end":
-            dispSymbols[s.key] = new End(diagram, s);
-            break;
-          case "operation":
-            dispSymbols[s.key] = new Operation(diagram, s);
-            break;
-          case "inputoutput":
-            dispSymbols[s.key] = new InputOutput(diagram, s);
-            break;
-          case "subroutine":
-            dispSymbols[s.key] = new Subroutine(diagram, s);
-            break;
-          case "condition":
-            dispSymbols[s.key] = new Condition(diagram, s);
-            break;
-          case "parallel":
-            dispSymbols[s.key] = new Parallel(diagram, s);
-            break;
-          default:
-            return new Error("Wrong symbol type!");
-        }
-
-        return dispSymbols[s.key];
       }
 
-      (function constructChart(s, prevDisp, prev) {
-        const dispSymb = getDisplaySymbol(s);
-
-        if (self.start === s) {
-          diagram.startWith(dispSymb);
-        } else if (prevDisp && prev && !prevDisp.pathOk) {
-          if (prevDisp instanceof Condition) {
-            if (prev.yes === s) {
-              prevDisp.yes(dispSymb);
-            }
-            if (prev.no === s) {
-              prevDisp.no(dispSymb);
-            }
-          } else if (prevDisp instanceof Parallel) {
-            if (prev.path1 === s) {
-              prevDisp.path1(dispSymb);
-            }
-            if (prev.path2 === s) {
-              prevDisp.path2(dispSymb);
-            }
-            if (prev.path3 === s) {
-              prevDisp.path3(dispSymb);
-            }
-          } else {
-            prevDisp.then(dispSymb);
-          }
-        }
-
-        if (dispSymb.pathOk) {
-          return dispSymb;
-        }
-
-        if (dispSymb instanceof Condition) {
-          if (s.yes) {
-            constructChart(s.yes, dispSymb, s);
-          }
-          if (s.no) {
-            constructChart(s.no, dispSymb, s);
-          }
-        } else if (dispSymb instanceof Parallel) {
-          if (s.path1) {
-            constructChart(s.path1, dispSymb, s);
-          }
-          if (s.path2) {
-            constructChart(s.path2, dispSymb, s);
-          }
-          if (s.path3) {
-            constructChart(s.path3, dispSymb, s);
-          }
-        } else if (s.next) {
-          constructChart(s.next, dispSymb, s);
-        }
-
+      if (dispSymb.pathOk) {
         return dispSymb;
-      })(this.start);
+      }
 
-      diagram.render();
-    },
-    clean: function () {
-      this.diagram.clean();
-    },
-    options: function () {
-      return this.diagram.options;
-    },
-  };
+      if (dispSymb instanceof Condition) {
+        if (symbol.yes) {
+          constructChart(symbol.yes, dispSymb, symbol);
+        }
+        if (symbol.no) {
+          constructChart(symbol.no, dispSymb, symbol);
+        }
+      } else if (dispSymb instanceof Parallel) {
+        if (symbol.path1) {
+          constructChart(symbol.path1, dispSymb, symbol);
+        }
+        if (symbol.path2) {
+          constructChart(symbol.path2, dispSymb, symbol);
+        }
+        if (symbol.path3) {
+          constructChart(symbol.path3, dispSymb, symbol);
+        }
+      } else if (symbol.next) {
+        constructChart(symbol.next, dispSymb, symbol);
+      }
 
+      return dispSymb;
+    })(this.start);
+
+    diagram.render();
+  },
+
+  clean() {
+    this.diagram.clean();
+  },
+
+  options() {
+    return this.diagram.options;
+  },
+};
+
+const getLines = (input: string): string[] => {
   const lines = [];
   let prevBreak = 0;
-  for (let i0 = 1, i0len = input.length; i0 < i0len; i0++) {
-    if (input[i0] === "\n" && input[i0 - 1] !== "\\") {
-      const line0 = input.substring(prevBreak, i0);
-      prevBreak = i0 + 1;
-      lines.push(line0.replace(/\\\n/g, "\n"));
+
+  for (let index = 1, { length } = input; index < length; index++)
+    if (input[index] === "\n" && input[index - 1] !== "\\") {
+      const line = input.substring(prevBreak, index);
+
+      prevBreak = index + 1;
+      lines.push(line.replace(/\\\n/g, "\n"));
     }
-  }
 
-  if (prevBreak < input.length) {
-    lines.push(input.substr(prevBreak));
-  }
+  if (prevBreak < input.length) lines.push(input.substr(prevBreak));
 
-  for (let l = 1, len = lines.length; l < len; ) {
-    const currentLine = lines[l];
+  for (let index = 1, { length } = lines; index < length; ) {
+    const currentLine = lines[index];
 
     if (
       currentLine.indexOf("->") < 0 &&
       currentLine.indexOf("=>") < 0 &&
       currentLine.indexOf("@>") < 0
     ) {
-      lines[l - 1] += "\n" + currentLine;
-      lines.splice(l, 1);
-      len--;
-    } else {
-      l++;
-    }
+      lines[index - 1] += `\n${currentLine}`;
+      lines.splice(index, 1);
+      length--;
+    } else index++;
   }
 
-  function getStyle(s) {
-    const startIndex = s.indexOf("(") + 1;
-    const endIndex = s.indexOf(")");
-    if (startIndex >= 0 && endIndex >= 0) {
-      return s.substring(startIndex, endIndex);
-    }
-    return "{}";
-  }
+  return lines;
+};
 
-  function getSymbValue(s) {
-    const startIndex = s.indexOf("(") + 1;
-    const endIndex = s.indexOf(")");
-    if (startIndex >= 0 && endIndex >= 0) {
-      return s.substring(startIndex, endIndex);
-    }
-    return "";
-  }
+const getStyle = (line: string): string => {
+  const startIndex = line.indexOf("(") + 1;
+  const endIndex = line.indexOf(")");
+  if (startIndex >= 0 && endIndex >= 0)
+    return line.substring(startIndex, endIndex);
 
-  function getSymbol(s) {
-    const startIndex = s.indexOf("(") + 1;
-    const endIndex = s.indexOf(")");
-    if (startIndex >= 0 && endIndex >= 0) {
-      return chart.symbols[s.substring(0, startIndex - 1)];
-    }
-    return chart.symbols[s];
-  }
+  return "{}";
+};
 
-  function getNextPath(s) {
+const getSymbolValue = (line: string): string => {
+  const startIndex = line.indexOf("(") + 1;
+  const endIndex = line.indexOf(")");
+  if (startIndex >= 0 && endIndex >= 0)
+    return line.substring(startIndex, endIndex);
+
+  return "";
+};
+
+const getSymbol = (line: string) => {
+  const startIndex = line.indexOf("(") + 1;
+  const endIndex = line.indexOf(")");
+  if (startIndex >= 0 && endIndex >= 0)
+    return chart.symbols[line.substring(0, startIndex - 1)];
+
+  return chart.symbols[line];
+};
+
+const getAnnotation = (line: string): string => {
+  const startIndex = line.indexOf("(") + 1,
+    endIndex = line.indexOf(")");
+  let tmp = line.substring(startIndex, endIndex);
+  if (tmp.indexOf(",") > 0) {
+    tmp = tmp.substring(0, tmp.indexOf(","));
+  }
+  const tmpSplit = tmp.split("@");
+
+  return tmpSplit.length > 1
+    ? startIndex >= 0 && endIndex >= 0
+      ? tmpSplit[1]
+      : ""
+    : "";
+};
+
+export const parse = (input = ""): void => {
+  const lines = getLines(input.trim());
+
+  const getNextPath = (line: string): string => {
     let next = "next";
-    const startIndex = s.indexOf("(") + 1;
-    const endIndex = s.indexOf(")");
+    const startIndex = line.indexOf("(") + 1;
+    const endIndex = line.indexOf(")");
     if (startIndex >= 0 && endIndex >= 0) {
       next = flowSymb.substring(startIndex, endIndex);
-      if (next.indexOf(",") < 0) {
-        if (next !== "yes" && next !== "no") {
-          next = "next, " + next;
-        }
-      }
-    }
-    return next;
-  }
 
-  function getAnnotation(s) {
-    const startIndex = s.indexOf("(") + 1,
-      endIndex = s.indexOf(")");
-    let tmp = s.substring(startIndex, endIndex);
-    if (tmp.indexOf(",") > 0) {
-      tmp = tmp.substring(0, tmp.indexOf(","));
+      if (next.indexOf(",") < 0)
+        if (next !== "yes" && next !== "no") next = `next, ${next}`;
     }
-    const tmp_split = tmp.split("@");
-    if (tmp_split.length > 1)
-      return startIndex >= 0 && endIndex >= 0 ? tmp_split[1] : "";
-  }
+
+    return next;
+  };
 
   while (lines.length > 0) {
     let line = lines.splice(0, 1)[0].trim();
@@ -216,7 +221,8 @@ export const parse = (input) => {
     if (line.indexOf("=>") >= 0) {
       // definition
       const parts = line.split("=>");
-      const symbol = {
+
+      const symbol: SymbolOptions = {
         key: parts[0].replace(/\(.*\)/, ""),
         symbolType: parts[1],
         text: null,
@@ -301,7 +307,7 @@ export const parse = (input) => {
       const flowSymbols = line.split("->");
       for (let iS = 0, lenS = flowSymbols.length; iS < lenS; iS++) {
         var flowSymb = flowSymbols[iS];
-        const symbVal = getSymbValue(flowSymb);
+        const symbVal = getSymbolValue(flowSymb);
 
         if (symbVal === "true" || symbVal === "false") {
           // map true or false to yes or no respectively
@@ -351,5 +357,6 @@ export const parse = (input) => {
       }
     }
   }
+
   return chart;
 };

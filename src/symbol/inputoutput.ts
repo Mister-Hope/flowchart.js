@@ -1,7 +1,7 @@
-import Symbol from "./util";
+import FlowChartSymbol from "./util";
 import { drawPath } from "../action";
 
-export default class InputOutput extends Symbol {
+export default class InputOutput extends FlowChartSymbol {
   constructor(chart, options = {}) {
     super(chart, options);
     this.textMargin = this.getAttr("text-margin");

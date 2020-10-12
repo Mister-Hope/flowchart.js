@@ -1,7 +1,7 @@
-import Symbol from "./util";
+import FlowChartSymbol from "./util";
 import { drawPath } from "../action";
 
-export default class Condition extends Symbol {
+export default class Condition extends FlowChartSymbol {
   constructor(chart, options = {}) {
     super(chart, options);
     this.yes_annotation = options.yes_annotation;

@@ -1,10 +1,4 @@
-declare const FlowChart: {
-    parse: (input: any) => {
-        symbols: {};
-        start: null;
-        drawSVG: (container: any, options: any) => void;
-        clean: () => void;
-        options: () => any;
-    };
+declare const flowChart: {
+    parse: (input?: string) => void;
 };
-export = FlowChart;
+export = flowChart;

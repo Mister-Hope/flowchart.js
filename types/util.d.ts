@@ -1,2 +1,1 @@
-export declare const merge: (options: any, defaultOptions: any) => any;
-export declare const inherits: (ctor: any, superCtor: any) => void;
+export declare const merge: <T = Record<string, any>, U extends T = T>(options: U, defaultOptions: T) => U;
