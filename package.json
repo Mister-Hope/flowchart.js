@@ -3,9 +3,8 @@
   "name": "flowchart.js",
   "version": "1.14.2",
   "main": "./index",
-  "private": false,
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=10.0.0"
   },
   "dependencies": {
     "raphael": "2.3.0"
@@ -13,18 +12,27 @@
   "types": "types/index.d.ts",
   "devDependencies": {
     "@types/raphael": "^2.3.0",
-    "eslint": "^7.11.0",
+    "@typescript-eslint/eslint-plugin": "4.4.0",
+    "@typescript-eslint/parser": "4.4.0",
+    "eslint": "7.11.0",
+    "eslint-config-prettier": "6.12.0",
+    "eslint-plugin-prettier": "3.1.4",
     "express": ">=4.17.1",
     "moment": "^2.29.1",
+    "prettier": "2.1.2",
+    "typescript": "^4.0.3",
     "webpack": "^5.0.0",
+    "webpack-cli": "^4.0.0",
     "webpack-dev-middleware": "^3.7.2",
     "webpack-hot-middleware": "^2.25.0"
   },
   "scripts": {
+    "tsc": "tsc",
     "init": "git submodule init && git submodule update && git submodule status",
     "start": "node devserver.js",
-    "lint": "eslint src",
+    "lint": "prettier --check --write . && eslint . --ext .ts --fix",
     "build:unminified": "NODE_ENV=production webpack -d --config webpack.config.js",
+    "build:test": "webpack",
     "build:minified": "NODE_ENV=production MINIFIED=1 webpack -d --config webpack.config.js",
     "build": "npm run build:unminified && npm run build:minified && cp ./release/flowchart.js ./site/flowchart-latest.js",
     "test": "npm run lint"

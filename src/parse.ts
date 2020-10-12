@@ -16,15 +16,15 @@ export const parse = (input) => {
     symbols: {},
     start: null,
     drawSVG: function (container, options) {
-      var self = this;
+      const self = this;
 
       if (this.diagram) {
         this.diagram.clean();
       }
 
-      var diagram = new FlowChart(container, options);
+      const diagram = new FlowChart(container, options);
       this.diagram = diagram;
-      var dispSymbols = {};
+      const dispSymbols = {};
 
       function getDisplaySymbol(s) {
         if (dispSymbols[s.key]) {
@@ -61,7 +61,7 @@ export const parse = (input) => {
       }
 
       (function constructChart(s, prevDisp, prev) {
-        var dispSymb = getDisplaySymbol(s);
+        const dispSymb = getDisplaySymbol(s);
 
         if (self.start === s) {
           diagram.startWith(dispSymb);
@@ -126,11 +126,11 @@ export const parse = (input) => {
     },
   };
 
-  var lines = [];
-  var prevBreak = 0;
-  for (var i0 = 1, i0len = input.length; i0 < i0len; i0++) {
+  const lines = [];
+  let prevBreak = 0;
+  for (let i0 = 1, i0len = input.length; i0 < i0len; i0++) {
     if (input[i0] === "\n" && input[i0 - 1] !== "\\") {
-      var line0 = input.substring(prevBreak, i0);
+      const line0 = input.substring(prevBreak, i0);
       prevBreak = i0 + 1;
       lines.push(line0.replace(/\\\n/g, "\n"));
     }
@@ -140,8 +140,8 @@ export const parse = (input) => {
     lines.push(input.substr(prevBreak));
   }
 
-  for (var l = 1, len = lines.length; l < len; ) {
-    var currentLine = lines[l];
+  for (let l = 1, len = lines.length; l < len; ) {
+    const currentLine = lines[l];
 
     if (
       currentLine.indexOf("->") < 0 &&
@@ -157,8 +157,8 @@ export const parse = (input) => {
   }
 
   function getStyle(s) {
-    var startIndex = s.indexOf("(") + 1;
-    var endIndex = s.indexOf(")");
+    const startIndex = s.indexOf("(") + 1;
+    const endIndex = s.indexOf(")");
     if (startIndex >= 0 && endIndex >= 0) {
       return s.substring(startIndex, endIndex);
     }
@@ -166,8 +166,8 @@ export const parse = (input) => {
   }
 
   function getSymbValue(s) {
-    var startIndex = s.indexOf("(") + 1;
-    var endIndex = s.indexOf(")");
+    const startIndex = s.indexOf("(") + 1;
+    const endIndex = s.indexOf(")");
     if (startIndex >= 0 && endIndex >= 0) {
       return s.substring(startIndex, endIndex);
     }
@@ -175,8 +175,8 @@ export const parse = (input) => {
   }
 
   function getSymbol(s) {
-    var startIndex = s.indexOf("(") + 1;
-    var endIndex = s.indexOf(")");
+    const startIndex = s.indexOf("(") + 1;
+    const endIndex = s.indexOf(")");
     if (startIndex >= 0 && endIndex >= 0) {
       return chart.symbols[s.substring(0, startIndex - 1)];
     }
@@ -184,9 +184,9 @@ export const parse = (input) => {
   }
 
   function getNextPath(s) {
-    var next = "next";
-    var startIndex = s.indexOf("(") + 1;
-    var endIndex = s.indexOf(")");
+    let next = "next";
+    const startIndex = s.indexOf("(") + 1;
+    const endIndex = s.indexOf(")");
     if (startIndex >= 0 && endIndex >= 0) {
       next = flowSymb.substring(startIndex, endIndex);
       if (next.indexOf(",") < 0) {
@@ -199,24 +199,24 @@ export const parse = (input) => {
   }
 
   function getAnnotation(s) {
-    var startIndex = s.indexOf("(") + 1,
+    const startIndex = s.indexOf("(") + 1,
       endIndex = s.indexOf(")");
-    var tmp = s.substring(startIndex, endIndex);
+    let tmp = s.substring(startIndex, endIndex);
     if (tmp.indexOf(",") > 0) {
       tmp = tmp.substring(0, tmp.indexOf(","));
     }
-    var tmp_split = tmp.split("@");
+    const tmp_split = tmp.split("@");
     if (tmp_split.length > 1)
       return startIndex >= 0 && endIndex >= 0 ? tmp_split[1] : "";
   }
 
   while (lines.length > 0) {
-    var line = lines.splice(0, 1)[0].trim();
+    let line = lines.splice(0, 1)[0].trim();
 
     if (line.indexOf("=>") >= 0) {
       // definition
-      var parts = line.split("=>");
-      var symbol = {
+      const parts = line.split("=>");
+      const symbol = {
         key: parts[0].replace(/\(.*\)/, ""),
         symbolType: parts[1],
         text: null,
@@ -229,11 +229,11 @@ export const parse = (input) => {
       };
 
       //parse parameters
-      var params = parts[0].match(/\((.*)\)/);
+      const params = parts[0].match(/\((.*)\)/);
       if (params && params.length > 1) {
-        var entries = params[1].split(",");
-        for (var i = 0; i < entries.length; i++) {
-          var entry = entries[i].split("=");
+        const entries = params[1].split(",");
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i].split("=");
           if (entry.length == 2) {
             symbol.params[entry[0]] = entry[1];
           }
@@ -272,8 +272,8 @@ export const parse = (input) => {
 
       /* adding support for links */
       if (symbol.link) {
-        var startIndex = symbol.link.indexOf("[") + 1;
-        var endIndex = symbol.link.indexOf("]");
+        const startIndex = symbol.link.indexOf("[") + 1;
+        const endIndex = symbol.link.indexOf("]");
         if (startIndex >= 0 && endIndex >= 0) {
           symbol.target = symbol.link.substring(startIndex, endIndex);
           symbol.link = symbol.link.substring(0, startIndex - 1);
@@ -284,7 +284,7 @@ export const parse = (input) => {
       /* adding support for flowstates */
       if (symbol.text) {
         if (symbol.text.indexOf("|") >= 0) {
-          var txtAndState = symbol.text.split("|");
+          const txtAndState = symbol.text.split("|");
           symbol.flowstate = txtAndState.pop().trim();
           symbol.text = txtAndState.join("|");
         }
@@ -293,15 +293,15 @@ export const parse = (input) => {
 
       chart.symbols[symbol.key] = symbol;
     } else if (line.indexOf("->") >= 0) {
-      var ann = getAnnotation(line);
+      let ann = getAnnotation(line);
       if (ann) {
         line = line.replace("@" + ann, "");
       }
       // flow
-      var flowSymbols = line.split("->");
-      for (var iS = 0, lenS = flowSymbols.length; iS < lenS; iS++) {
+      const flowSymbols = line.split("->");
+      for (let iS = 0, lenS = flowSymbols.length; iS < lenS; iS++) {
         var flowSymb = flowSymbols[iS];
-        var symbVal = getSymbValue(flowSymb);
+        const symbVal = getSymbValue(flowSymb);
 
         if (symbVal === "true" || symbVal === "false") {
           // map true or false to yes or no respectively
@@ -309,12 +309,12 @@ export const parse = (input) => {
           flowSymb = flowSymb.replace("false", "no");
         }
 
-        var next = getNextPath(flowSymb);
-        var realSymb = getSymbol(flowSymb);
+        let next = getNextPath(flowSymb);
+        const realSymb = getSymbol(flowSymb);
 
-        var direction = null;
+        let direction = null;
         if (next.indexOf(",") >= 0) {
-          var condOpt = next.split(",");
+          const condOpt = next.split(",");
           next = condOpt[0];
           direction = condOpt[1].trim();
         }
@@ -330,7 +330,7 @@ export const parse = (input) => {
         }
 
         if (iS + 1 < lenS) {
-          var nextSymb = flowSymbols[iS + 1];
+          const nextSymb = flowSymbols[iS + 1];
           realSymb[next] = getSymbol(nextSymb);
           realSymb["direction_" + next] = direction;
           direction = null;
@@ -338,11 +338,11 @@ export const parse = (input) => {
       }
     } else if (line.indexOf("@>") >= 0) {
       // line style
-      var lineStyleSymbols = line.split("@>");
-      for (var iSS = 0, lenSS = lineStyleSymbols.length; iSS < lenSS; iSS++) {
+      const lineStyleSymbols = line.split("@>");
+      for (let iSS = 0, lenSS = lineStyleSymbols.length; iSS < lenSS; iSS++) {
         if (iSS + 1 !== lenSS) {
-          var curSymb = getSymbol(lineStyleSymbols[iSS]);
-          var nextSymbol = getSymbol(lineStyleSymbols[iSS + 1]);
+          const curSymb = getSymbol(lineStyleSymbols[iSS]);
+          const nextSymbol = getSymbol(lineStyleSymbols[iSS + 1]);
 
           curSymb["lineStyle"][nextSymbol.key] = JSON.parse(
             getStyle(lineStyleSymbols[iSS + 1])

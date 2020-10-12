@@ -22,20 +22,20 @@ export default class Condition extends Symbol {
       x: this.textMargin * 2,
     });
 
-    var width = this.text.getBBox().width + 3 * this.textMargin;
+    let width = this.text.getBBox().width + 3 * this.textMargin;
     width += width / 2;
-    var height = this.text.getBBox().height + 2 * this.textMargin;
+    let height = this.text.getBBox().height + 2 * this.textMargin;
     height += height / 2;
     height = Math.max(width * 0.5, height);
-    var startX = width / 4;
-    var startY = height / 4;
+    const startX = width / 4;
+    const startY = height / 4;
 
     this.text.attr({
       x: startX + this.textMargin / 2,
     });
 
-    var start = { x: startX, y: startY };
-    var points = [
+    const start = { x: startX, y: startY };
+    const points = [
       { x: startX - width / 4, y: startY + height / 4 },
       {
         x: startX - width / 4 + width / 2,
@@ -49,7 +49,7 @@ export default class Condition extends Symbol {
       { x: startX - width / 4, y: startY + height / 4 },
     ];
 
-    var symbol = drawPath(chart, start, points);
+    const symbol = drawPath(chart, start, points);
 
     symbol.attr({
       stroke: this.getAttr("element-color"),
@@ -86,10 +86,10 @@ export default class Condition extends Symbol {
       this[this.no_direction + "_symbol"] = this.no_symbol;
     }
 
-    var lineLength = this.getAttr("line-length");
+    const lineLength = this.getAttr("line-length");
 
     if (this.bottom_symbol) {
-      var bottomPoint = this.getBottom();
+      const bottomPoint = this.getBottom();
 
       if (!this.bottom_symbol.isPositioned) {
         this.bottom_symbol.shiftY(this.getY() + this.height + lineLength);
@@ -101,7 +101,7 @@ export default class Condition extends Symbol {
     }
 
     if (this.right_symbol) {
-      var rightPoint = this.getRight();
+      const rightPoint = this.getRight();
 
       if (!this.right_symbol.isPositioned) {
         this.right_symbol.setY(rightPoint.y - this.right_symbol.height / 2);
@@ -111,16 +111,16 @@ export default class Condition extends Symbol {
 
         var self = this;
         (function shift() {
-          var hasSymbolUnder = false;
-          var symb;
-          for (var i = 0, len = self.chart.symbols.length; i < len; i++) {
+          let hasSymbolUnder = false;
+          let symb;
+          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
             symb = self.chart.symbols[i];
 
             if (
               !self.params["align-next"] ||
               self.params["align-next"] !== "no"
             ) {
-              var diff = Math.abs(
+              const diff = Math.abs(
                 symb.getCenter().x - self.right_symbol.getCenter().x
               );
               if (
@@ -147,7 +147,7 @@ export default class Condition extends Symbol {
     }
 
     if (this.left_symbol) {
-      var leftPoint = this.getLeft();
+      const leftPoint = this.getLeft();
 
       if (!this.left_symbol.isPositioned) {
         this.left_symbol.setY(leftPoint.y - this.left_symbol.height / 2);
@@ -156,16 +156,16 @@ export default class Condition extends Symbol {
         );
         var self = this;
         (function shift() {
-          var hasSymbolUnder = false;
-          var symb;
-          for (var i = 0, len = self.chart.symbols.length; i < len; i++) {
+          let hasSymbolUnder = false;
+          let symb;
+          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
             symb = self.chart.symbols[i];
 
             if (
               !self.params["align-next"] ||
               self.params["align-next"] !== "no"
             ) {
-              var diff = Math.abs(
+              const diff = Math.abs(
                 symb.getCenter().x - self.left_symbol.getCenter().x
               );
               if (

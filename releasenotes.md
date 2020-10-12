@@ -10,32 +10,26 @@
 
 - Custom annotations [#209](https://github.com/adrai/flowchart.js/pull/209) thanks to [serpent-charmer](https://github.com/serpent-charmer)
 
-
 ### v1.13.0
 
 - Provide low cost means of lines not colliding until they converge [#191](https://github.com/adrai/flowchart.js/pull/191) thanks to [robertleeplummerjr](https://github.com/robertleeplummerjr)
 - update raphael dependency
 
-
 ### v1.12.3
 
 - Cleaning error fix, Linestyle parsing cycle fix, Dynamic flowState update [#188](https://github.com/adrai/flowchart.js/pull/188) thanks to [murich](https://github.com/murich)
-
 
 ### v1.12.2
 
 - shrink npm package
 
-
 ### v1.12.1
 
 - Fix params bug [#173](https://github.com/adrai/flowchart.js/pull/173) thanks to [leo108](https://github.com/leo108)
 
-
 ### v1.12.0
 
 - onclick function binding to chart nodes [#172](https://github.com/adrai/flowchart.js/pull/172) thanks to [ndrqu](https://github.com/ndrqu)
-
 
 ### v1.11.3
 
@@ -192,7 +186,6 @@
 ### v1.1.0
 
 - optional link for symbols
-
 
 ### v1.0.0
 

@@ -124,10 +124,10 @@ export default class Parallel extends Symbol {
       this[this.path3_direction + "_symbol"] = this.path3_symbol;
     }
 
-    var lineLength = this.getAttr("line-length");
+    const lineLength = this.getAttr("line-length");
 
     if (this.bottom_symbol) {
-      var bottomPoint = this.getBottom();
+      const bottomPoint = this.getBottom();
 
       if (!this.bottom_symbol.isPositioned) {
         this.bottom_symbol.shiftY(this.getY() + this.height + lineLength);
@@ -139,7 +139,7 @@ export default class Parallel extends Symbol {
     }
 
     if (this.top_symbol) {
-      var topPoint = this.getTop();
+      const topPoint = this.getTop();
 
       if (!this.top_symbol.isPositioned) {
         this.top_symbol.shiftY(
@@ -152,10 +152,10 @@ export default class Parallel extends Symbol {
       }
     }
 
-    var self = this;
+    const self = this;
 
     if (this.left_symbol) {
-      var leftPoint = this.getLeft();
+      const leftPoint = this.getLeft();
 
       if (!this.left_symbol.isPositioned) {
         this.left_symbol.setY(leftPoint.y - this.left_symbol.height / 2);
@@ -163,16 +163,16 @@ export default class Parallel extends Symbol {
           -(this.group.getBBox().x + this.width + lineLength)
         );
         (function shift() {
-          var hasSymbolUnder = false;
-          var symb;
-          for (var i = 0, len = self.chart.symbols.length; i < len; i++) {
+          let hasSymbolUnder = false;
+          let symb;
+          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
             symb = self.chart.symbols[i];
 
             if (
               !self.params["align-next"] ||
               self.params["align-next"] !== "no"
             ) {
-              var diff = Math.abs(
+              const diff = Math.abs(
                 symb.getCenter().x - self.left_symbol.getCenter().x
               );
               if (
@@ -199,7 +199,7 @@ export default class Parallel extends Symbol {
     }
 
     if (this.right_symbol) {
-      var rightPoint = this.getRight();
+      const rightPoint = this.getRight();
 
       if (!this.right_symbol.isPositioned) {
         this.right_symbol.setY(rightPoint.y - this.right_symbol.height / 2);
@@ -207,16 +207,16 @@ export default class Parallel extends Symbol {
           this.group.getBBox().x + this.width + lineLength
         );
         (function shift() {
-          var hasSymbolUnder = false;
-          var symb;
-          for (var i = 0, len = self.chart.symbols.length; i < len; i++) {
+          let hasSymbolUnder = false;
+          let symb;
+          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
             symb = self.chart.symbols[i];
 
             if (
               !self.params["align-next"] ||
               self.params["align-next"] !== "no"
             ) {
-              var diff = Math.abs(
+              const diff = Math.abs(
                 symb.getCenter().x - self.right_symbol.getCenter().x
               );
               if (

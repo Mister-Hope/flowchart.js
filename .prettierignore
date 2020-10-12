@@ -1,0 +1,5 @@
+example/
+
+*.js
+*.d.ts
+!webpack.config.js

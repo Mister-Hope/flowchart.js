@@ -34,9 +34,9 @@ export default class Symbol {
       "font-size": this.getAttr("font-size"),
     });
 
-    var font = this.getAttr("font");
-    var fontF = this.getAttr("font-family");
-    var fontW = this.getAttr("font-weight");
+    const font = this.getAttr("font");
+    const fontF = this.getAttr("font-family");
+    const fontW = this.getAttr("font-weight");
 
     if (font) this.text.attr({ font: font });
     if (fontF) this.text.attr({ "font-family": fontF });
@@ -63,13 +63,13 @@ export default class Symbol {
       this.text.attr("target", options.target);
     }
 
-    var maxWidth = this.getAttr("maxWidth");
+    const maxWidth = this.getAttr("maxWidth");
     if (maxWidth) {
       // using this approach: http://stackoverflow.com/a/3153457/22466
-      var words = options.text.split(" ");
-      var tempText = "";
-      for (var i = 0, ii = words.length; i < ii; i++) {
-        var word = words[i];
+      const words = options.text.split(" ");
+      let tempText = "";
+      for (let i = 0, ii = words.length; i < ii; i++) {
+        const word = words[i];
         this.text.attr("text", tempText + " " + word);
         if (this.text.getBBox().width > maxWidth) {
           tempText += "\n" + word;
@@ -83,7 +83,7 @@ export default class Symbol {
     this.group.push(this.text);
 
     if (symbol) {
-      var tmpMargin = this.getAttr("text-margin");
+      const tmpMargin = this.getAttr("text-margin");
 
       symbol.attr({
         fill: this.getAttr("fill"),
@@ -133,11 +133,11 @@ export default class Symbol {
     if (!this.chart) {
       return undefined;
     }
-    var opt3 = this.chart.options ? this.chart.options[attName] : undefined;
-    var opt2 = this.chart.options.symbols
+    const opt3 = this.chart.options ? this.chart.options[attName] : undefined;
+    const opt2 = this.chart.options.symbols
       ? this.chart.options.symbols[this.symbolType][attName]
       : undefined;
-    var opt1;
+    let opt1;
     if (
       this.chart.options.flowstate &&
       this.chart.options.flowstate[this.flowstate]
@@ -188,48 +188,50 @@ export default class Symbol {
   }
 
   getTop() {
-    var y = this.getY();
-    var x = this.getX() + this.width / 2;
+    const y = this.getY();
+    const x = this.getX() + this.width / 2;
     return { x: x, y: y };
   }
 
   getBottom() {
-    var y = this.getY() + this.height;
-    var x = this.getX() + this.width / 2;
+    const y = this.getY() + this.height;
+    const x = this.getX() + this.width / 2;
     return { x: x, y: y };
   }
 
   getLeft() {
-    var y = this.getY() + this.group.getBBox().height / 2;
-    var x = this.getX();
+    const y = this.getY() + this.group.getBBox().height / 2;
+    const x = this.getX();
     return { x: x, y: y };
   }
 
   getRight() {
-    var y = this.getY() + this.group.getBBox().height / 2;
-    var x = this.getX() + this.group.getBBox().width;
+    const y = this.getY() + this.group.getBBox().height / 2;
+    const x = this.getX() + this.group.getBBox().width;
     return { x: x, y: y };
   }
 
   render() {
     if (this.next) {
-      var self = this;
-      var lineLength = this.getAttr("line-length");
+      const self = this;
+      const lineLength = this.getAttr("line-length");
 
       if (this.next_direction === "right") {
-        var rightPoint = this.getRight();
+        const rightPoint = this.getRight();
 
         if (!this.next.isPositioned) {
           this.next.setY(rightPoint.y - this.next.height / 2);
           this.next.shiftX(this.group.getBBox().x + this.width + lineLength);
 
           (function shift() {
-            var hasSymbolUnder = false;
-            var symb;
-            for (var i = 0, len = self.chart.symbols.length; i < len; i++) {
+            let hasSymbolUnder = false;
+            let symb;
+            for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
               symb = self.chart.symbols[i];
 
-              var diff = Math.abs(symb.getCenter().x - self.next.getCenter().x);
+              const diff = Math.abs(
+                symb.getCenter().x - self.next.getCenter().x
+              );
               if (
                 symb.getCenter().y > self.next.getCenter().y &&
                 diff <= self.next.width / 2
@@ -251,19 +253,21 @@ export default class Symbol {
           this.next.render();
         }
       } else if (this.next_direction === "left") {
-        var leftPoint = this.getLeft();
+        const leftPoint = this.getLeft();
 
         if (!this.next.isPositioned) {
           this.next.setY(leftPoint.y - this.next.height / 2);
           this.next.shiftX(-(this.group.getBBox().x + this.width + lineLength));
 
           (function shift() {
-            var hasSymbolUnder = false;
-            var symb;
-            for (var i = 0, len = self.chart.symbols.length; i < len; i++) {
+            let hasSymbolUnder = false;
+            let symb;
+            for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
               symb = self.chart.symbols[i];
 
-              var diff = Math.abs(symb.getCenter().x - self.next.getCenter().x);
+              const diff = Math.abs(
+                symb.getCenter().x - self.next.getCenter().x
+              );
               if (
                 symb.getCenter().y > self.next.getCenter().y &&
                 diff <= self.next.width / 2
@@ -285,7 +289,7 @@ export default class Symbol {
           this.next.render();
         }
       } else {
-        var bottomPoint = this.getBottom();
+        const bottomPoint = this.getBottom();
 
         if (!this.next.isPositioned) {
           this.next.shiftY(this.getY() + this.height + lineLength);
@@ -317,27 +321,27 @@ export default class Symbol {
       this.connectedTo.push(symbol);
     }
 
-    var x = this.getCenter().x,
+    const x = this.getCenter().x,
       y = this.getCenter().y,
       right = this.getRight(),
       bottom = this.getBottom(),
       top = this.getTop(),
       left = this.getLeft();
 
-    var symbolX = symbol.getCenter().x,
+    const symbolX = symbol.getCenter().x,
       symbolY = symbol.getCenter().y,
       symbolTop = symbol.getTop(),
       symbolRight = symbol.getRight(),
       symbolLeft = symbol.getLeft();
 
-    var isOnSameColumn = x === symbolX,
+    const isOnSameColumn = x === symbolX,
       isOnSameLine = y === symbolY,
       isUnder = y < symbolY,
       isUpper = y > symbolY || this === symbol,
       isLeft = x > symbolX,
       isRight = x < symbolX;
 
-    var maxX = 0,
+    let maxX = 0,
       line,
       yOffset,
       lineLength = this.getAttr("line-length"),
@@ -596,7 +600,7 @@ export default class Symbol {
       symbol.topEnd = true;
       maxX = bottom.x + lineLength / 2;
     } else if (origin === "left" && isOnSameColumn && isUpper) {
-      var diffX = left.x - lineLength / 2;
+      let diffX = left.x - lineLength / 2;
       if (symbolLeft.x < left.x) {
         diffX = symbolLeft.x - lineLength / 2;
       }
@@ -663,33 +667,33 @@ export default class Symbol {
     }
 
     if (line) {
-      for (var l = 0, llen = this.chart.lines.length; l < llen; l++) {
-        var otherLine = this.chart.lines[l];
+      for (let l = 0, llen = this.chart.lines.length; l < llen; l++) {
+        const otherLine = this.chart.lines[l];
 
-        var ePath = otherLine.attr("path"),
+        const ePath = otherLine.attr("path"),
           lPath = line.attr("path");
 
-        for (var iP = 0, lenP = ePath.length - 1; iP < lenP; iP++) {
-          var newPath = [];
+        for (let iP = 0, lenP = ePath.length - 1; iP < lenP; iP++) {
+          const newPath = [];
           newPath.push(["M", ePath[iP][1], ePath[iP][2]]);
           newPath.push(["L", ePath[iP + 1][1], ePath[iP + 1][2]]);
 
-          var line1_from_x = newPath[0][1];
-          var line1_from_y = newPath[0][2];
-          var line1_to_x = newPath[1][1];
-          var line1_to_y = newPath[1][2];
+          const line1_from_x = newPath[0][1];
+          const line1_from_y = newPath[0][2];
+          const line1_to_x = newPath[1][1];
+          const line1_to_y = newPath[1][2];
 
-          for (var lP = 0, lenlP = lPath.length - 1; lP < lenlP; lP++) {
-            var newLinePath = [];
+          for (let lP = 0, lenlP = lPath.length - 1; lP < lenlP; lP++) {
+            const newLinePath = [];
             newLinePath.push(["M", lPath[lP][1], lPath[lP][2]]);
             newLinePath.push(["L", lPath[lP + 1][1], lPath[lP + 1][2]]);
 
-            var line2_from_x = newLinePath[0][1];
-            var line2_from_y = newLinePath[0][2];
-            var line2_to_x = newLinePath[1][1];
-            var line2_to_y = newLinePath[1][2];
+            const line2_from_x = newLinePath[0][1];
+            const line2_from_y = newLinePath[0][2];
+            const line2_to_x = newLinePath[1][1];
+            const line2_to_y = newLinePath[1][2];
 
-            var res = checkLineIntersection(
+            const res = checkLineIntersection(
               line1_from_x,
               line1_from_y,
               line1_to_x,

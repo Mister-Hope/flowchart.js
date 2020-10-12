@@ -1,21 +1,21 @@
 export const drawPath = (chart, location, points) => {
-  var i, len;
-  var path = "M{0},{1}";
+  let i, len;
+  let path = "M{0},{1}";
   for (i = 2, len = 2 * points.length + 2; i < len; i += 2) {
     path += " L{" + i + "},{" + (i + 1) + "}";
   }
-  var pathValues = [location.x, location.y];
+  const pathValues = [location.x, location.y];
   for (i = 0, len = points.length; i < len; i++) {
     pathValues.push(points[i].x);
     pathValues.push(points[i].y);
   }
-  var symbol = chart.paper.path(path, pathValues);
+  const symbol = chart.paper.path(path, pathValues);
   symbol.attr("stroke", chart.options["element-color"]);
   symbol.attr("stroke-width", chart.options["line-width"]);
 
-  var font = chart.options.font;
-  var fontF = chart.options["font-family"];
-  var fontW = chart.options["font-weight"];
+  const font = chart.options.font;
+  const fontF = chart.options["font-family"];
+  const fontW = chart.options["font-weight"];
 
   if (font) symbol.attr({ font: font });
   if (fontF) symbol.attr({ "font-family": fontF });
@@ -25,51 +25,51 @@ export const drawPath = (chart, location, points) => {
 };
 
 export const drawLine = (chart, from, to, text) => {
-  var i, len;
+  let i, len;
 
   if (Object.prototype.toString.call(to) !== "[object Array]") {
     to = [to];
   }
 
-  var path = "M{0},{1}";
+  let path = "M{0},{1}";
   for (i = 2, len = 2 * to.length + 2; i < len; i += 2) {
     path += " L{" + i + "},{" + (i + 1) + "}";
   }
-  var pathValues = [from.x, from.y];
+  const pathValues = [from.x, from.y];
   for (i = 0, len = to.length; i < len; i++) {
     pathValues.push(to[i].x);
     pathValues.push(to[i].y);
   }
 
-  var line = chart.paper.path(path, pathValues);
+  const line = chart.paper.path(path, pathValues);
   line.attr({
     stroke: chart.options["line-color"],
     "stroke-width": chart.options["line-width"],
     "arrow-end": chart.options["arrow-end"],
   });
 
-  var font = chart.options.font;
-  var fontF = chart.options["font-family"];
-  var fontW = chart.options["font-weight"];
+  const font = chart.options.font;
+  const fontF = chart.options["font-family"];
+  const fontW = chart.options["font-weight"];
 
   if (font) line.attr({ font: font });
   if (fontF) line.attr({ "font-family": fontF });
   if (fontW) line.attr({ "font-weight": fontW });
 
   if (text) {
-    var centerText = false;
+    const centerText = false;
 
-    var textPath = chart.paper.text(0, 0, text);
-    var textAnchor = "start";
+    const textPath = chart.paper.text(0, 0, text);
+    let textAnchor = "start";
 
-    var isHorizontal = false;
-    var firstTo = to[0];
+    let isHorizontal = false;
+    const firstTo = to[0];
 
     if (from.y === firstTo.y) {
       isHorizontal = true;
     }
 
-    var x = 0,
+    let x = 0,
       y = 0;
 
     if (centerText) {
@@ -140,7 +140,7 @@ export const checkLineIntersection = (
   line2EndY
 ) => {
   // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
-  var denominator,
+  let denominator,
     a,
     b,
     numerator1,

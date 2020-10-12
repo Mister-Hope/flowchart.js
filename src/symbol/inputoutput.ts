@@ -10,13 +10,13 @@ export default class InputOutput extends Symbol {
       x: this.textMargin * 3,
     });
 
-    var width = this.text.getBBox().width + 4 * this.textMargin;
-    var height = this.text.getBBox().height + 2 * this.textMargin;
-    var startX = this.textMargin;
-    var startY = height / 2;
+    const width = this.text.getBBox().width + 4 * this.textMargin;
+    const height = this.text.getBBox().height + 2 * this.textMargin;
+    const startX = this.textMargin;
+    const startY = height / 2;
 
-    var start = { x: startX, y: startY };
-    var points = [
+    const start = { x: startX, y: startY };
+    const points = [
       { x: startX - this.textMargin, y: height },
       { x: startX - this.textMargin + width, y: height },
       { x: startX - this.textMargin + width + 2 * this.textMargin, y: 0 },
@@ -24,7 +24,7 @@ export default class InputOutput extends Symbol {
       { x: startX, y: startY },
     ];
 
-    var symbol = drawPath(chart, start, points);
+    const symbol = drawPath(chart, start, points);
 
     symbol.attr({
       stroke: this.getAttr("element-color"),
@@ -53,14 +53,14 @@ export default class InputOutput extends Symbol {
   }
 
   getLeft() {
-    var y = this.getY() + this.group.getBBox().height / 2;
-    var x = this.getX() + this.textMargin;
+    const y = this.getY() + this.group.getBBox().height / 2;
+    const x = this.getX() + this.textMargin;
     return { x: x, y: y };
   }
 
   getRight() {
-    var y = this.getY() + this.group.getBBox().height / 2;
-    var x = this.getX() + this.group.getBBox().width - this.textMargin;
+    const y = this.getY() + this.group.getBBox().height / 2;
+    const x = this.getX() + this.group.getBBox().width - this.textMargin;
     return { x: x, y: y };
   }
 }

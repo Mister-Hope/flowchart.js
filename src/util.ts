@@ -3,7 +3,7 @@ export const merge = (options, defaultOptions) => {
     return defaultOptions;
   }
 
-  var merged = {};
+  const merged = {};
   for (var attrname in defaultOptions) {
     merged[attrname] = defaultOptions[attrname];
   }
@@ -35,7 +35,7 @@ export const inherits = (ctor, superCtor) => {
   } else {
     // old school shim for old browsers
     ctor.super_ = superCtor;
-    var TempCtor = function () {};
+    const TempCtor = function () {};
     TempCtor.prototype = superCtor.prototype;
     ctor.prototype = new TempCtor();
     ctor.prototype.constructor = ctor;

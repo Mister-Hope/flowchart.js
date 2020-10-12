@@ -1,4 +1,4 @@
-import Raphael from "raphael";
+import * as Raphael from "raphael";
 import { merge } from "./util";
 import { defaultConfig } from "./config";
 import Condition from "./symbol/condition";
@@ -20,7 +20,7 @@ export default class FlowChart {
       this.symbols.push(symbol);
     }
 
-    var flowChart = this;
+    const flowChart = this;
 
     if (symbol instanceof Condition) {
       symbol.yes = (nextSymbol) => {
@@ -75,7 +75,7 @@ export default class FlowChart {
   }
 
   render() {
-    var maxWidth = 0,
+    let maxWidth = 0,
       maxHeight = 0,
       i = 0,
       len = 0,
@@ -119,12 +119,12 @@ export default class FlowChart {
 
     maxX = this.maxXFromLine;
 
-    var x;
-    var y;
+    let x;
+    let y;
 
     for (i = 0, len = this.symbols.length; i < len; i++) {
       symbol = this.symbols[i];
-      var leftX = symbol.getX();
+      const leftX = symbol.getX();
       x = leftX + symbol.width;
       y = symbol.getY() + symbol.height;
       if (leftX < minX) {
@@ -142,8 +142,8 @@ export default class FlowChart {
       line = this.lines[i].getBBox();
       x = line.x;
       y = line.y;
-      var x2 = line.x2;
-      var y2 = line.y2;
+      const x2 = line.x2;
+      const y2 = line.y2;
       if (x < minX) {
         minX = x;
       }
@@ -158,16 +158,16 @@ export default class FlowChart {
       }
     }
 
-    var scale = this.options["scale"];
-    var lineWidth = this.options["line-width"];
+    const scale = this.options["scale"];
+    const lineWidth = this.options["line-width"];
 
     if (this.minXFromSymbols < minX) minX = this.minXFromSymbols;
 
     if (minX < 0) minX -= lineWidth;
     if (minY < 0) minY -= lineWidth;
 
-    var width = maxX + lineWidth - minX;
-    var height = maxY + lineWidth - minY;
+    const width = maxX + lineWidth - minX;
+    const height = maxY + lineWidth - minY;
 
     this.paper.setSize(width * scale, height * scale);
     this.paper.setViewBox(minX, minY, width, height, true);
@@ -175,7 +175,7 @@ export default class FlowChart {
 
   clean() {
     if (this.paper) {
-      var paperDom = this.paper.canvas;
+      const paperDom = this.paper.canvas;
       paperDom.parentNode && paperDom.parentNode.removeChild(paperDom);
     }
   }

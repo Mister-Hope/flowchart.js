@@ -13,7 +13,7 @@ export default class Subroutine extends Symbol {
       x: 2 * this.getAttr("text-margin"),
     });
 
-    var innerWrap = chart.paper.rect(0, 0, 0, 0);
+    const innerWrap = chart.paper.rect(0, 0, 0, 0);
     innerWrap.attr({
       x: this.getAttr("text-margin"),
       stroke: this.getAttr("element-color"),
@@ -26,9 +26,9 @@ export default class Subroutine extends Symbol {
       innerWrap.node.id = options.key + "i";
     }
 
-    var font = this.getAttr("font");
-    var fontF = this.getAttr("font-family");
-    var fontW = this.getAttr("font-weight");
+    const font = this.getAttr("font");
+    const fontF = this.getAttr("font-family");
+    const fontW = this.getAttr("font-weight");
 
     if (font) innerWrap.attr({ font: font });
     if (fontF) innerWrap.attr({ "font-family": fontF });

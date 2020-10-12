@@ -1,42 +1,10 @@
-declare module "flowchart.js" {
-  namespace FlowChart {
-    interface SVGOptions {
-      x: number;
-      y: number;
-      "line-width": number;
-      "line-length": number;
-      "text-margin": number;
-      "font-size": number;
-      "font-color": string;
-      "line-color": string;
-      "element-color": string;
-      fill: string;
-      "yes-text": string;
-      "no-text": string;
-      "arrow-end": string;
-      scale: number;
-      class: string;
-      [props: string]: any;
-    }
-
-    interface DrawOptions extends Partial<SVGOptions> {
-      /** Stymbol Styles */
-      symbols?: Record<string, Partial<SVGOptions>>;
-      /** FlowState config */
-      flowstate?: Record<string, Partial<SVGOptions>>;
-    }
-
-    interface ParseInstance {
-      clean: () => void;
-      drawSVG: (container: HTMLElement | string, options?: DrawOptions) => void;
-    }
-  }
-
-  interface FlowChart {
-    parse: (code: string) => FlowChart.ParseInstance;
-  }
-
-  const FlowChart: FlowChart;
-
-  export = FlowChart;
-}
+declare const FlowChart: {
+    parse: (input: any) => {
+        symbols: {};
+        start: null;
+        drawSVG: (container: any, options: any) => void;
+        clean: () => void;
+        options: () => any;
+    };
+};
+export = FlowChart;
