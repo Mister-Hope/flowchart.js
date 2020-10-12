@@ -1,4 +1,12 @@
-export const drawPath = (chart, location, points) => {
+import { RaphaelPath } from "raphael";
+import FlowChart from "./chart";
+import { Position } from "./symbol/util";
+
+export const drawPath = (
+  chart: FlowChart,
+  location: Position,
+  points: Position
+): RaphaelPath<"SVG" | "VML"> => {
   let i, len;
   let path = "M{0},{1}";
   for (i = 2, len = 2 * points.length + 2; i < len; i += 2) {
@@ -14,22 +22,20 @@ export const drawPath = (chart, location, points) => {
   symbol.attr("stroke-width", chart.options["line-width"]);
 
   const font = chart.options.font;
-  const fontF = chart.options["font-family"];
-  const fontW = chart.options["font-weight"];
+  const fontFamily = chart.options["font-family"];
+  const fontWeight = chart.options["font-weight"];
 
   if (font) symbol.attr({ font: font });
-  if (fontF) symbol.attr({ "font-family": fontF });
-  if (fontW) symbol.attr({ "font-weight": fontW });
+  if (fontFamily) symbol.attr({ "font-family": fontFamily });
+  if (fontWeight) symbol.attr({ "font-weight": fontWeight });
 
   return symbol;
 };
 
-export const drawLine = (chart, from, to, text) => {
+export const drawLine = (chart: FlowChart, from, to, text) => {
   let i, len;
 
-  if (Object.prototype.toString.call(to) !== "[object Array]") {
-    to = [to];
-  }
+  if (Object.prototype.toString.call(to) !== "[object Array]") to = [to];
 
   let path = "M{0},{1}";
   for (i = 2, len = 2 * to.length + 2; i < len; i += 2) {
@@ -49,12 +55,12 @@ export const drawLine = (chart, from, to, text) => {
   });
 
   const font = chart.options.font;
-  const fontF = chart.options["font-family"];
-  const fontW = chart.options["font-weight"];
+  const fontFamily = chart.options["font-family"];
+  const fontWeight = chart.options["font-weight"];
 
   if (font) line.attr({ font: font });
-  if (fontF) line.attr({ "font-family": fontF });
-  if (fontW) line.attr({ "font-weight": fontW });
+  if (fontFamily) line.attr({ "font-family": fontFamily });
+  if (fontWeight) line.attr({ "font-weight": fontWeight });
 
   if (text) {
     const centerText = false;
@@ -65,31 +71,23 @@ export const drawLine = (chart, from, to, text) => {
     let isHorizontal = false;
     const firstTo = to[0];
 
-    if (from.y === firstTo.y) {
-      isHorizontal = true;
-    }
+    if (from.y === firstTo.y) isHorizontal = true;
 
     let x = 0,
       y = 0;
 
     if (centerText) {
-      if (from.x > firstTo.x) {
-        x = from.x - (from.x - firstTo.x) / 2;
-      } else {
-        x = firstTo.x - (firstTo.x - from.x) / 2;
-      }
+      if (from.x > firstTo.x) x = from.x - (from.x - firstTo.x) / 2;
+      else x = firstTo.x - (firstTo.x - from.x) / 2;
 
-      if (from.y > firstTo.y) {
-        y = from.y - (from.y - firstTo.y) / 2;
-      } else {
-        y = firstTo.y - (firstTo.y - from.y) / 2;
-      }
+      if (from.y > firstTo.y) y = from.y - (from.y - firstTo.y) / 2;
+      else y = firstTo.y - (firstTo.y - from.y) / 2;
 
       if (isHorizontal) {
         x -= textPath.getBBox().width / 2;
-        y -= chart.options["text-margin"];
+        y -= chart.options["text-margin"] as number;
       } else {
-        x += chart.options["text-margin"];
+        x += chart.options["text-margin"] as number;
         y -= textPath.getBBox().height / 2;
       }
     } else {
@@ -100,16 +98,13 @@ export const drawLine = (chart, from, to, text) => {
         if (from.x > firstTo.x) {
           x -= chart.options["text-margin"] / 2;
           textAnchor = "end";
-        } else {
-          x += chart.options["text-margin"] / 2;
-        }
+        } else x += chart.options["text-margin"] / 2;
+
         y -= chart.options["text-margin"];
       } else {
         x += chart.options["text-margin"] / 2;
         y += chart.options["text-margin"];
-        if (from.y > firstTo.y) {
-          y -= chart.options["text-margin"] * 2;
-        }
+        if (from.y > firstTo.y) y -= chart.options["text-margin"] * 2;
       }
     }
 
@@ -122,29 +117,34 @@ export const drawLine = (chart, from, to, text) => {
     });
 
     if (font) textPath.attr({ font: font });
-    if (fontF) textPath.attr({ "font-family": fontF });
-    if (fontW) textPath.attr({ "font-weight": fontW });
+    if (fontFamily) textPath.attr({ "font-family": fontFamily });
+    if (fontWeight) textPath.attr({ "font-weight": fontWeight });
   }
 
   return line;
 };
 
+export interface LineIntersectionResult {
+  x: number;
+  y: number;
+  onLine1: false;
+  onLine2: false;
+}
+
 export const checkLineIntersection = (
-  line1StartX,
-  line1StartY,
-  line1EndX,
-  line1EndY,
-  line2StartX,
-  line2StartY,
-  line2EndX,
-  line2EndY
-) => {
+  line1StartX: number,
+  line1StartY: number,
+  line1EndX: number,
+  line1EndY: number,
+  line2StartX: number,
+  line2StartY: number,
+  line2EndX: number,
+  line2EndY: number
+): LineIntersectionResult => {
   // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
   let denominator,
     a,
     b,
-    numerator1,
-    numerator2,
     result = {
       x: null,
       y: null,
@@ -154,13 +154,15 @@ export const checkLineIntersection = (
   denominator =
     (line2EndY - line2StartY) * (line1EndX - line1StartX) -
     (line2EndX - line2StartX) * (line1EndY - line1StartY);
-  if (denominator === 0) {
-    return result;
-  }
+  if (denominator === 0) return result;
+
   a = line1StartY - line2StartY;
   b = line1StartX - line2StartX;
-  numerator1 = (line2EndX - line2StartX) * a - (line2EndY - line2StartY) * b;
-  numerator2 = (line1EndX - line1StartX) * a - (line1EndY - line1StartY) * b;
+  const numerator1 =
+    (line2EndX - line2StartX) * a - (line2EndY - line2StartY) * b;
+  const numerator2 =
+    (line1EndX - line1StartX) * a - (line1EndY - line1StartY) * b;
+
   a = numerator1 / denominator;
   b = numerator2 / denominator;
 
@@ -173,13 +175,11 @@ export const checkLineIntersection = (
   y = line2StartX + (b * (line2EndY - line2StartY));
   */
   // if line1 is a segment and line2 is infinite, they intersect if:
-  if (a > 0 && a < 1) {
-    result.onLine1 = true;
-  }
+  if (a > 0 && a < 1) result.onLine1 = true;
+
   // if line2 is a segment and line1 is infinite, they intersect if:
-  if (b > 0 && b < 1) {
-    result.onLine2 = true;
-  }
+  if (b > 0 && b < 1) result.onLine2 = true;
+
   // if line1 and line2 are segments, they intersect if both of the above are true
   return result;
 };

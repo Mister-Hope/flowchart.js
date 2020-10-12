@@ -59,29 +59,19 @@ const chart = {
     (function constructChart(symbol, prevDisp, prev) {
       const dispSymb = getDisplaySymbol(symbol);
 
-      if (self.start === symbol) {
-        diagram.startWith(dispSymb);
-      } else if (prevDisp && prev && !prevDisp.pathOk) {
+      if (self.start === symbol) diagram.startWith(dispSymb);
+      else if (prevDisp && prev && !prevDisp.pathOk) {
         if (prevDisp instanceof Condition) {
-          if (prev.yes === symbol) {
-            prevDisp.yes(dispSymb);
-          }
-          if (prev.no === symbol) {
-            prevDisp.no(dispSymb);
-          }
+          if (prev.yes === symbol) prevDisp.yes(dispSymb);
+
+          if (prev.no === symbol) prevDisp.no(dispSymb);
         } else if (prevDisp instanceof Parallel) {
-          if (prev.path1 === symbol) {
-            prevDisp.path1(dispSymb);
-          }
-          if (prev.path2 === symbol) {
-            prevDisp.path2(dispSymb);
-          }
-          if (prev.path3 === symbol) {
-            prevDisp.path3(dispSymb);
-          }
-        } else {
-          prevDisp.then(dispSymb);
-        }
+          if (prev.path1 === symbol) prevDisp.path1(dispSymb);
+
+          if (prev.path2 === symbol) prevDisp.path2(dispSymb);
+
+          if (prev.path3 === symbol) prevDisp.path3(dispSymb);
+        } else prevDisp.then(dispSymb);
       }
 
       if (dispSymb.pathOk) {
@@ -89,25 +79,16 @@ const chart = {
       }
 
       if (dispSymb instanceof Condition) {
-        if (symbol.yes) {
-          constructChart(symbol.yes, dispSymb, symbol);
-        }
-        if (symbol.no) {
-          constructChart(symbol.no, dispSymb, symbol);
-        }
+        if (symbol.yes) constructChart(symbol.yes, dispSymb, symbol);
+
+        if (symbol.no) constructChart(symbol.no, dispSymb, symbol);
       } else if (dispSymb instanceof Parallel) {
-        if (symbol.path1) {
-          constructChart(symbol.path1, dispSymb, symbol);
-        }
-        if (symbol.path2) {
-          constructChart(symbol.path2, dispSymb, symbol);
-        }
-        if (symbol.path3) {
-          constructChart(symbol.path3, dispSymb, symbol);
-        }
-      } else if (symbol.next) {
-        constructChart(symbol.next, dispSymb, symbol);
-      }
+        if (symbol.path1) constructChart(symbol.path1, dispSymb, symbol);
+
+        if (symbol.path2) constructChart(symbol.path2, dispSymb, symbol);
+
+        if (symbol.path3) constructChart(symbol.path3, dispSymb, symbol);
+      } else if (symbol.next) constructChart(symbol.next, dispSymb, symbol);
 
       return dispSymb;
     })(this.start);

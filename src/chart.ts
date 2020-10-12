@@ -1,5 +1,5 @@
 import Raphael, { RaphaelPaper, RaphaelSet } from "raphael";
-import { merge } from "./util";
+import { deepAssign } from "./util";
 import { defaultConfig } from "./config";
 import Condition from "./symbol/condition";
 import Parallel from "./symbol/parallel";
@@ -18,7 +18,7 @@ export default class FlowChart {
   constructor(container: string | HTMLElement, options: DrawOptions = {}) {
     this.paper = new Raphael(container);
 
-    this.options = merge(options, defaultConfig);
+    this.options = deepAssign(options, defaultConfig);
 
     this.symbols = [];
     this.lines = [];

@@ -1,6 +1,10 @@
+export declare type SymbolType = "start" | "end" | "operation" | "inputoutput" | "subroutine" | "condition" | "parallel";
 export interface SVGOptions {
     x: number;
     y: number;
+    font: string;
+    "font-family": string;
+    "font-weight": string;
     "line-width": number;
     "line-length": number;
     "text-margin": number;
@@ -23,7 +27,7 @@ export interface DrawOptions extends Partial<SVGOptions> {
     flowstate?: Record<string, Partial<SVGOptions>>;
 }
 export interface SymbolOptions {
-    symbolType: "start" | "end" | "operation" | "inputoutput" | "subroutine" | "condition" | "parallel";
+    symbolType: SymbolType;
     key: string;
     text: string | null;
     link: string | null;

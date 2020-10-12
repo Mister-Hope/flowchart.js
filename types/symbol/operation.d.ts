@@ -1,4 +1,6 @@
+import { DrawOptions } from "../options";
 import FlowChartSymbol from "./util";
+import FlowChart from "../chart";
 export default class Operation extends FlowChartSymbol {
-    constructor(chart: any, options?: {});
+    constructor(chart: FlowChart, options?: DrawOptions);
 }

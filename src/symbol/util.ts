@@ -1,12 +1,39 @@
-import { RaphaelElement } from "raphael";
+import { RaphaelElement, RaphaelSet } from "raphael";
+import { SymbolType } from "../options";
 import { checkLineIntersection, drawLine } from "../action";
+import Flowchart from "../chart";
+
+export type Direction = "top" | "right" | "left" | "bottom";
+
+export interface Position {
+  x: number;
+  y: number;
+}
 
 export default class FlowChartSymbol {
-  text: SVGGraphicsElement;
+  chart: Flowchart;
+  text: RaphaelElement<"SVG" | "VML", Element | SVGTextElement>;
 
+  connectedTo: FlowChartSymbol[];
+
+  group: RaphaelSet<"SVG" | "VML">;
+
+  symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>;
+
+  symbolType: SymbolType;
+
+  flowstate: string;
+  key: string;
+  lineStyle: Record<string, any>;
+  leftLines: any[];
+  rightLines: any[];
+  topLines: any[];
+  bottomLines: any[];
+
+  next_direction: Direction | undefined;
   constructor(
-    chart,
-    options,
+    chart: Flowchart,
+    options: Record<string, any>,
     symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>
   ) {
     this.chart = chart;
@@ -28,16 +55,15 @@ export default class FlowChartSymbol {
         : undefined;
 
     this.text = this.chart.paper.text(0, 0, options.text);
-    //Raphael does not support the svg group tag so setting the text node id to the symbol node id plus t
-    if (options.key) {
-      this.text.node.id = options.key + "t";
-    }
-    this.text.node.setAttribute("class", this.getAttr("class") + "t");
+    // Raphael does not support the svg group tag so setting the text node id to the symbol node id plus t
+    if (options.key) this.text.node.id = `${options.key}t`;
+
+    this.text.node.setAttribute("class", `${this.getAttr("class")}t`);
 
     this.text.attr({
       "text-anchor": "start",
-      x: this.getAttr("text-margin"),
-      fill: this.getAttr("font-color"),
+      x: this.getAttr("text-margin") as number,
+      fill: this.getAttr("font-color") as string,
       "font-size": this.getAttr("font-size"),
     });
 
@@ -130,25 +156,26 @@ export default class FlowChartSymbol {
   }
 
   /* Gets the attribute based on Flowstate, Symbol-Name and default, first found wins */
-  getAttr(attName) {
-    if (!this.chart) {
-      return undefined;
-    }
-    const opt3 = this.chart.options ? this.chart.options[attName] : undefined;
+  getAttr<T = string | number>(attName: string): T | "" {
+    if (!this.chart) return "";
+
+    const opt3 = this.chart.options ? this.chart.options[attName] : "";
     const opt2 = this.chart.options.symbols
       ? this.chart.options.symbols[this.symbolType][attName]
-      : undefined;
+      : "";
+
     let opt1;
+
     if (
       this.chart.options.flowstate &&
       this.chart.options.flowstate[this.flowstate]
-    ) {
+    )
       opt1 = this.chart.options.flowstate[this.flowstate][attName];
-    }
+
     return opt1 || opt2 || opt3;
   }
 
-  initialize() {
+  initialize(): void {
     this.group.transform(
       "t" + this.getAttr("line-width") + "," + this.getAttr("line-width")
     );
@@ -157,34 +184,34 @@ export default class FlowChartSymbol {
     this.height = this.group.getBBox().height;
   }
 
-  getCenter() {
+  getCenter(): Position {
     return {
       x: this.getX() + this.width / 2,
       y: this.getY() + this.height / 2,
     };
   }
 
-  getX() {
+  getX(): number {
     return this.group.getBBox().x;
   }
 
-  getY() {
+  getY(): number {
     return this.group.getBBox().y;
   }
 
-  shiftX(x) {
+  shiftX(x): void {
     this.group.transform("t" + (this.getX() + x) + "," + this.getY());
   }
 
-  setX(x) {
+  setX(x): void {
     this.group.transform("t" + x + "," + this.getY());
   }
 
-  shiftY(y) {
+  shiftY(y): void {
     this.group.transform("t" + this.getX() + "," + (this.getY() + y));
   }
 
-  setY(y) {
+  setY(y): void {
     this.group.transform("t" + this.getX() + "," + y);
   }
 
@@ -317,10 +344,8 @@ export default class FlowChartSymbol {
     }
   }
 
-  drawLineTo(symbol, text, origin) {
-    if (this.connectedTo.indexOf(symbol) < 0) {
-      this.connectedTo.push(symbol);
-    }
+  drawLineTo(symbol: FlowChartSymbol, text, direction: Direction) {
+    if (this.connectedTo.indexOf(symbol) < 0) this.connectedTo.push(symbol);
 
     const x = this.getCenter().x,
       y = this.getCenter().y,
@@ -348,7 +373,7 @@ export default class FlowChartSymbol {
       lineLength = this.getAttr("line-length"),
       lineWith = this.getAttr("line-width");
 
-    if ((!origin || origin === "bottom") && isOnSameColumn && isUnder) {
+    if ((!direction || direction === "bottom") && isOnSameColumn && isUnder) {
       if (symbol.topLines.length === 0 && this.bottomLines.length === 0) {
         line = drawLine(this.chart, bottom, symbolTop, text);
       } else {
@@ -369,10 +394,14 @@ export default class FlowChartSymbol {
       this.bottomStart = true;
       symbol.topEnd = true;
       maxX = bottom.x;
-    } else if ((!origin || origin === "right") && isOnSameLine && isRight) {
-      if (symbol.leftLines.length === 0 && this.rightLines.length === 0) {
+    } else if (
+      (!direction || direction === "right") &&
+      isOnSameLine &&
+      isRight
+    ) {
+      if (symbol.leftLines.length === 0 && this.rightLines.length === 0)
         line = drawLine(this.chart, right, symbolLeft, text);
-      } else {
+      else {
         yOffset =
           Math.max(symbol.leftLines.length, this.rightLines.length) * 10;
         line = drawLine(
@@ -392,10 +421,10 @@ export default class FlowChartSymbol {
       this.rightStart = true;
       symbol.leftEnd = true;
       maxX = symbolLeft.x;
-    } else if ((!origin || origin === "left") && isOnSameLine && isLeft) {
-      if (symbol.rightLines.length === 0 && this.leftLines.length === 0) {
+    } else if ((!direction || direction === "left") && isOnSameLine && isLeft) {
+      if (symbol.rightLines.length === 0 && this.leftLines.length === 0)
         line = drawLine(this.chart, left, symbolRight, text);
-      } else {
+      else {
         yOffset =
           Math.max(symbol.rightLines.length, this.leftLines.length) * 10;
         line = drawLine(
@@ -415,7 +444,11 @@ export default class FlowChartSymbol {
       this.leftStart = true;
       symbol.rightEnd = true;
       maxX = symbolRight.x;
-    } else if ((!origin || origin === "right") && isOnSameColumn && isUpper) {
+    } else if (
+      (!direction || direction === "right") &&
+      isOnSameColumn &&
+      isUpper
+    ) {
       yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -436,7 +469,11 @@ export default class FlowChartSymbol {
       this.rightStart = true;
       symbol.topEnd = true;
       maxX = right.x + lineLength / 2;
-    } else if ((!origin || origin === "right") && isOnSameColumn && isUnder) {
+    } else if (
+      (!direction || direction === "right") &&
+      isOnSameColumn &&
+      isUnder
+    ) {
       yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -457,7 +494,7 @@ export default class FlowChartSymbol {
       this.rightStart = true;
       symbol.topEnd = true;
       maxX = right.x + lineLength / 2;
-    } else if ((!origin || origin === "bottom") && isLeft) {
+    } else if ((!direction || direction === "bottom") && isLeft) {
       yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       if (this.leftEnd && isUpper) {
         line = drawLine(
@@ -495,7 +532,7 @@ export default class FlowChartSymbol {
       this.bottomStart = true;
       symbol.topEnd = true;
       maxX = bottom.x + (bottom.x - symbolTop.x) / 2;
-    } else if ((!origin || origin === "bottom") && isRight && isUnder) {
+    } else if ((!direction || direction === "bottom") && isRight && isUnder) {
       yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -513,7 +550,7 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = bottom.x;
       if (symbolTop.x > maxX) maxX = symbolTop.x;
-    } else if ((!origin || origin === "bottom") && isRight) {
+    } else if ((!direction || direction === "bottom") && isRight) {
       yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -538,7 +575,7 @@ export default class FlowChartSymbol {
       this.bottomStart = true;
       symbol.topEnd = true;
       maxX = bottom.x + (bottom.x - symbolTop.x) / 2;
-    } else if (origin && origin === "right" && isLeft) {
+    } else if (direction && direction === "right" && isLeft) {
       yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -559,7 +596,7 @@ export default class FlowChartSymbol {
       this.rightStart = true;
       symbol.topEnd = true;
       maxX = right.x + lineLength / 2;
-    } else if (origin && origin === "right" && isRight) {
+    } else if (direction && direction === "right" && isRight) {
       yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -575,7 +612,12 @@ export default class FlowChartSymbol {
       this.rightStart = true;
       symbol.topEnd = true;
       maxX = right.x + lineLength / 2;
-    } else if (origin && origin === "bottom" && isOnSameColumn && isUpper) {
+    } else if (
+      direction &&
+      direction === "bottom" &&
+      isOnSameColumn &&
+      isUpper
+    ) {
       yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -600,7 +642,7 @@ export default class FlowChartSymbol {
       this.bottomStart = true;
       symbol.topEnd = true;
       maxX = bottom.x + lineLength / 2;
-    } else if (origin === "left" && isOnSameColumn && isUpper) {
+    } else if (direction === "left" && isOnSameColumn && isUpper) {
       let diffX = left.x - lineLength / 2;
       if (symbolLeft.x < left.x) {
         diffX = symbolLeft.x - lineLength / 2;
@@ -622,7 +664,7 @@ export default class FlowChartSymbol {
       this.leftStart = true;
       symbol.topEnd = true;
       maxX = left.x;
-    } else if (origin === "left") {
+    } else if (direction === "left") {
       yOffset = Math.max(symbol.topLines.length, this.leftLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -643,7 +685,7 @@ export default class FlowChartSymbol {
       this.leftStart = true;
       symbol.topEnd = true;
       maxX = left.x;
-    } else if (origin === "top") {
+    } else if (direction === "top") {
       yOffset = Math.max(symbol.topLines.length, this.topLines.length) * 10;
       line = drawLine(
         this.chart,
@@ -778,16 +820,14 @@ export default class FlowChartSymbol {
       if (
         this.chart.minXFromSymbols === undefined ||
         this.chart.minXFromSymbols > left.x
-      ) {
+      )
         this.chart.minXFromSymbols = left.x;
-      }
     }
 
     if (
       !this.chart.maxXFromLine ||
       (this.chart.maxXFromLine && maxX > this.chart.maxXFromLine)
-    ) {
+    )
       this.chart.maxXFromLine = maxX;
-    }
   }
 }

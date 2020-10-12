@@ -1,8 +1,18 @@
 import FlowChartSymbol from "./util";
 import { drawPath } from "../action";
+import FlowChart from "../chart";
+import { Direction } from "./util";
+import { DrawOptions } from "../options";
 
 export default class Condition extends FlowChartSymbol {
-  constructor(chart, options = {}) {
+  /** Yes text */
+  yes_annotation: string;
+  /** No text */
+  no_annotation: string;
+
+  yes_direction: Direction;
+
+  constructor(chart: FlowChart, options: DrawOptions = {}) {
     super(chart, options);
     this.yes_annotation = options.yes_annotation;
     this.no_annotation = options.no_annotation;
@@ -18,9 +28,7 @@ export default class Condition extends FlowChartSymbol {
     this.yes_direction = this.yes_direction || "bottom";
     this.no_direction = this.no_direction || "right";
 
-    this.text.attr({
-      x: this.textMargin * 2,
-    });
+    this.text.attr({ x: this.textMargin * 2 });
 
     let width = this.text.getBBox().width + 3 * this.textMargin;
     width += width / 2;
@@ -56,15 +64,11 @@ export default class Condition extends FlowChartSymbol {
       "stroke-width": this.getAttr("line-width"),
       fill: this.getAttr("fill"),
     });
-    if (options.link) {
-      symbol.attr("href", options.link);
-    }
-    if (options.target) {
-      symbol.attr("target", options.target);
-    }
-    if (options.key) {
-      symbol.node.id = options.key;
-    }
+
+    if (options.link) symbol.attr("href", options.link);
+    if (options.target) symbol.attr("target", options.target);
+    if (options.key) symbol.node.id = options.key;
+
     symbol.node.setAttribute("class", this.getAttr("class"));
 
     this.text.attr({
@@ -78,13 +82,10 @@ export default class Condition extends FlowChartSymbol {
   }
 
   render() {
-    if (this.yes_direction) {
+    if (this.yes_direction)
       this[this.yes_direction + "_symbol"] = this.yes_symbol;
-    }
 
-    if (this.no_direction) {
-      this[this.no_direction + "_symbol"] = this.no_symbol;
-    }
+    if (this.no_direction) this[this.no_direction + "_symbol"] = this.no_symbol;
 
     const lineLength = this.getAttr("line-length");
 
@@ -95,7 +96,6 @@ export default class Condition extends FlowChartSymbol {
         this.bottom_symbol.shiftY(this.getY() + this.height + lineLength);
         this.bottom_symbol.setX(bottomPoint.x - this.bottom_symbol.width / 2);
         this.bottom_symbol.isPositioned = true;
-
         this.bottom_symbol.render();
       }
     }
@@ -193,20 +193,18 @@ export default class Condition extends FlowChartSymbol {
   }
 
   renderLines() {
-    if (this.yes_symbol) {
+    if (this.yes_symbol)
       this.drawLineTo(
         this.yes_symbol,
         this.yes_annotation ? this.yes_annotation : this.getAttr("yes-text"),
         this.yes_direction
       );
-    }
 
-    if (this.no_symbol) {
+    if (this.no_symbol)
       this.drawLineTo(
         this.no_symbol,
         this.no_annotation ? this.no_annotation : this.getAttr("no-text"),
         this.no_direction
       );
-    }
   }
 }

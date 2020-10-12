@@ -1,1 +1,1 @@
-export declare const merge: <T = Record<string, any>, U extends T = T>(options: U, defaultOptions: T) => U;
+export declare const deepAssign: <T extends Record<string, any>, U extends Record<string, any> = T, V extends Record<string, any> = T>(originObject: T, ...assignObjects: U[]) => V;

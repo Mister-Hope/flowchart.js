@@ -1,7 +1,9 @@
 import FlowChartSymbol from "./util";
+import { DrawOptions } from "../options";
+import FlowChart from "../chart";
 
 export default class Parallel extends FlowChartSymbol {
-  constructor(chart, options = {}) {
+  constructor(chart: FlowChart, options: DrawOptions = {}) {
     const symbol = chart.paper.rect(0, 0, 0, 0);
     super(chart, options, symbol);
     this.textMargin = this.getAttr("text-margin");

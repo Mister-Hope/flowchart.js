@@ -1,8 +1,12 @@
-export declare const drawPath: (chart: any, location: any, points: any) => any;
-export declare const drawLine: (chart: any, from: any, to: any, text: any) => any;
-export declare const checkLineIntersection: (line1StartX: any, line1StartY: any, line1EndX: any, line1EndY: any, line2StartX: any, line2StartY: any, line2EndX: any, line2EndY: any) => {
-    x: null;
-    y: null;
-    onLine1: boolean;
-    onLine2: boolean;
-};
+import { RaphaelPath } from "raphael";
+import FlowChart from "./chart";
+import { Position } from "./symbol/util";
+export declare const drawPath: (chart: FlowChart, location: Position, points: Position) => RaphaelPath<"SVG" | "VML">;
+export declare const drawLine: (chart: FlowChart, from: any, to: any, text: any) => RaphaelPath<"SVG" | "VML">;
+export interface LineIntersectionResult {
+    x: number;
+    y: number;
+    onLine1: false;
+    onLine2: false;
+}
+export declare const checkLineIntersection: (line1StartX: number, line1StartY: number, line1EndX: number, line1EndY: number, line2StartX: number, line2StartY: number, line2EndX: number, line2EndY: number) => LineIntersectionResult;

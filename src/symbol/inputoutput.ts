@@ -1,14 +1,16 @@
 import FlowChartSymbol from "./util";
 import { drawPath } from "../action";
+import FlowChart from "../chart";
+import { DrawOptions } from "../options";
 
 export default class InputOutput extends FlowChartSymbol {
-  constructor(chart, options = {}) {
-    super(chart, options);
-    this.textMargin = this.getAttr("text-margin");
+  textMargin: number;
 
-    this.text.attr({
-      x: this.textMargin * 3,
-    });
+  constructor(chart: FlowChart, options: DrawOptions = {}) {
+    super(chart, options);
+    this.textMargin = this.getAttr("text-margin") as number;
+
+    this.text.attr({ x: this.textMargin * 3 });
 
     const width = this.text.getBBox().width + 4 * this.textMargin;
     const height = this.text.getBBox().height + 2 * this.textMargin;
@@ -31,20 +33,16 @@ export default class InputOutput extends FlowChartSymbol {
       "stroke-width": this.getAttr("line-width"),
       fill: this.getAttr("fill"),
     });
-    if (options.link) {
-      symbol.attr("href", options.link);
-    }
-    if (options.target) {
-      symbol.attr("target", options.target);
-    }
-    if (options.key) {
-      symbol.node.id = options.key;
-    }
+
+    if (options.link) symbol.attr("href", options.link);
+
+    if (options.target) symbol.attr("target", options.target);
+
+    if (options.key) symbol.node.id = options.key;
+
     symbol.node.setAttribute("class", this.getAttr("class"));
 
-    this.text.attr({
-      y: symbol.getBBox().height / 2,
-    });
+    this.text.attr({ y: symbol.getBBox().height / 2 });
 
     this.group.push(symbol);
     symbol.insertBefore(this.text);
@@ -52,9 +50,10 @@ export default class InputOutput extends FlowChartSymbol {
     this.initialize();
   }
 
-  getLeft() {
+  getLeft(): Position {
     const y = this.getY() + this.group.getBBox().height / 2;
     const x = this.getX() + this.textMargin;
+
     return { x: x, y: y };
   }
 
