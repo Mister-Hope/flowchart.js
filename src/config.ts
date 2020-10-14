@@ -1,16 +1,16 @@
-import { DrawOptions } from "./options";
+import { ParsedDrawOptions } from "./options";
 
-export const defaultConfig: DrawOptions = {
+export const defaultConfig: ParsedDrawOptions = {
   x: 0,
   y: 0,
-  "line-width": 3,
-  "line-length": 50,
   "text-margin": 10,
   "font-size": 14,
   "font-color": "black",
   // 'font': 'normal',
   // 'font-family': 'calibri',
   // 'font-weight': 'normal',
+  "line-width": 3,
+  "line-length": 50,
   "line-color": "black",
   "element-color": "black",
   fill: "white",

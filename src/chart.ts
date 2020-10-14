@@ -1,21 +1,23 @@
-import Raphael, { RaphaelPaper, RaphaelSet } from "raphael";
+import Raphael, { RaphaelPaper, RaphaelSet, RaphaelPath } from "raphael";
 import { deepAssign } from "./util";
 import { defaultConfig } from "./config";
 import Condition from "./symbol/condition";
 import Parallel from "./symbol/parallel";
-import { DrawOptions } from "./options";
+import { ParsedDrawOptions } from "./options";
 import FlowChartSymbol from "./symbol/util";
 
 export default class FlowChart {
-  options: DrawOptions;
+  options: ParsedDrawOptions;
 
   symbols: FlowChartSymbol[];
-  lines: any[];
+  lines: RaphaelPath<"SVG" | "VML">[];
   start: null | FlowChartSymbol;
 
   paper: RaphaelPaper<"SVG" | "VML"> & RaphaelSet<"SVG" | "VML">;
+  minXFromSymbols?: number;
+  maxXFromLine?: number;
 
-  constructor(container: string | HTMLElement, options: DrawOptions = {}) {
+  constructor(container: string | HTMLElement, options: ParsedDrawOptions) {
     this.paper = new Raphael(container);
 
     this.options = deepAssign(options, defaultConfig);
@@ -28,15 +30,13 @@ export default class FlowChart {
   handle(symbol: FlowChartSymbol): FlowChartSymbol {
     if (this.symbols.indexOf(symbol) <= -1) this.symbols.push(symbol);
 
-    const flowChart = this;
-
     if (symbol instanceof Condition) {
       symbol.yes = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.yes_symbol = nextSymbol;
 
         if (symbol.no_symbol) symbol.pathOk = true;
 
-        return flowChart.handle(nextSymbol);
+        return this.handle(nextSymbol);
       };
 
       symbol.no = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
@@ -44,34 +44,34 @@ export default class FlowChart {
 
         if (symbol.yes_symbol) symbol.pathOk = true;
 
-        return flowChart.handle(nextSymbol);
+        return this.handle(nextSymbol);
       };
     } else if (symbol instanceof Parallel) {
       symbol.path1 = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.path1_symbol = nextSymbol;
         if (symbol.path2_symbol) symbol.pathOk = true;
 
-        return flowChart.handle(nextSymbol);
+        return this.handle(nextSymbol);
       };
       symbol.path2 = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.path2_symbol = nextSymbol;
 
         if (symbol.path3_symbol) symbol.pathOk = true;
 
-        return flowChart.handle(nextSymbol);
+        return this.handle(nextSymbol);
       };
       symbol.path3 = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.path3_symbol = nextSymbol;
 
         if (symbol.path1_symbol) symbol.pathOk = true;
 
-        return flowChart.handle(nextSymbol);
+        return this.handle(nextSymbol);
       };
     } else
       symbol.then = (nextSymbol: FlowChartSymbol): FlowChartSymbol => {
         symbol.next = nextSymbol;
         symbol.pathOk = true;
-        return flowChart.handle(nextSymbol);
+        return this.handle(nextSymbol);
       };
 
     return symbol;
@@ -79,6 +79,7 @@ export default class FlowChart {
 
   startWith(symbol: FlowChartSymbol): FlowChartSymbol {
     this.start = symbol;
+
     return this.handle(symbol);
   }
 
@@ -89,7 +90,6 @@ export default class FlowChart {
       maxY = 0,
       minX = 0,
       minY = 0,
-      symbol,
       line;
 
     this.symbols.forEach((symbol) => {

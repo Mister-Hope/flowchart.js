@@ -1,12 +1,12 @@
 import FlowChartSymbol from "./util";
 import { drawPath } from "../action";
 import FlowChart from "../chart";
-import { DrawOptions } from "../options";
+import { SymbolOptions } from "../options";
 
 export default class InputOutput extends FlowChartSymbol {
   textMargin: number;
 
-  constructor(chart: FlowChart, options: DrawOptions = {}) {
+  constructor(chart: FlowChart, options: SymbolOptions = {}) {
     super(chart, options);
     this.textMargin = this.getAttr("text-margin") as number;
 
@@ -29,9 +29,9 @@ export default class InputOutput extends FlowChartSymbol {
     const symbol = drawPath(chart, start, points);
 
     symbol.attr({
-      stroke: this.getAttr("element-color"),
-      "stroke-width": this.getAttr("line-width"),
-      fill: this.getAttr("fill"),
+      stroke: this.getAttr("element-color") as string,
+      "stroke-width": this.getAttr("line-width") as number,
+      fill: this.getAttr("fill") as string,
     });
 
     if (options.link) symbol.attr("href", options.link);
@@ -40,7 +40,7 @@ export default class InputOutput extends FlowChartSymbol {
 
     if (options.key) symbol.node.id = options.key;
 
-    symbol.node.setAttribute("class", this.getAttr("class"));
+    symbol.node.setAttribute("class", this.getAttr("class") as string);
 
     this.text.attr({ y: symbol.getBBox().height / 2 });
 

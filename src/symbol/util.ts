@@ -1,5 +1,5 @@
 import { RaphaelElement, RaphaelSet } from "raphael";
-import { SymbolType } from "../options";
+import { SymbolOptions, SymbolType } from "../options";
 import { checkLineIntersection, drawLine } from "../action";
 import Flowchart from "../chart";
 
@@ -29,11 +29,21 @@ export default class FlowChartSymbol {
   rightLines: any[];
   topLines: any[];
   bottomLines: any[];
-
+  bottomStart?: boolean;
+  next?: any;
   next_direction: Direction | undefined;
+  isPositioned?: boolean;
+  width?: number;
+  height?: number;
+  topStart?: boolean;
+  topEnd?: boolean;
+  rightStart?: boolean;
+  leftStart?: boolean;
+  leftEnd?: boolean;
+  rightEnd?: boolean;
   constructor(
     chart: Flowchart,
-    options: Record<string, any>,
+    options: SymbolOptions,
     symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>
   ) {
     this.chart = chart;
@@ -54,26 +64,26 @@ export default class FlowChartSymbol {
         ? options["direction_next"]
         : undefined;
 
-    this.text = this.chart.paper.text(0, 0, options.text);
+    this.text = this.chart.paper.text(0, 0, options.text || "");
     // Raphael does not support the svg group tag so setting the text node id to the symbol node id plus t
     if (options.key) this.text.node.id = `${options.key}t`;
 
-    this.text.node.setAttribute("class", `${this.getAttr("class")}t`);
+    this.text.node.setAttribute("class", `${this.getAttr("class") as string}t`);
 
     this.text.attr({
       "text-anchor": "start",
       x: this.getAttr("text-margin") as number,
       fill: this.getAttr("font-color") as string,
-      "font-size": this.getAttr("font-size"),
+      "font-size": this.getAttr("font-size") as number,
     });
 
-    const font = this.getAttr("font");
-    const fontF = this.getAttr("font-family");
-    const fontW = this.getAttr("font-weight");
+    const font = this.getAttr("font") as string;
+    const fontFamily = this.getAttr("font-family") as string;
+    const fontWeight = this.getAttr("font-weight") as string;
 
     if (font) this.text.attr({ font: font });
-    if (fontF) this.text.attr({ "font-family": fontF });
-    if (fontW) this.text.attr({ "font-weight": fontW });
+    if (fontFamily) this.text.attr({ "font-family": fontFamily });
+    if (fontWeight) this.text.attr({ "font-weight": fontWeight });
 
     if (options.link) this.text.attr("href", options.link);
 
@@ -84,7 +94,7 @@ export default class FlowChartSymbol {
       this.text.node.addEventListener(
         "click",
         (event) => {
-          window[options.function](event, options);
+          (window as any)[options.function as string](event, options);
         },
         false
       );
@@ -94,7 +104,8 @@ export default class FlowChartSymbol {
       this.text.attr("target", options.target);
     }
 
-    const maxWidth = this.getAttr("maxWidth");
+    const maxWidth = this.getAttr<number>("maxWidth");
+
     if (maxWidth) {
       // using this approach: http://stackoverflow.com/a/3153457/22466
       const words = options.text.split(" ");
@@ -156,15 +167,15 @@ export default class FlowChartSymbol {
   }
 
   /* Gets the attribute based on Flowstate, Symbol-Name and default, first found wins */
-  getAttr<T = string | number>(attName: string): T | "" {
-    if (!this.chart) return "";
+  getAttr<T>(attName: string): T | undefined {
+    if (!this.chart) return undefined;
 
-    const opt3 = this.chart.options ? this.chart.options[attName] : "";
+    const opt3 = this.chart.options ? this.chart.options[attName] : undefined;
     const opt2 = this.chart.options.symbols
       ? this.chart.options.symbols[this.symbolType][attName]
-      : "";
+      : undefined;
 
-    let opt1;
+    let opt1: T | undefined;
 
     if (
       this.chart.options.flowstate &&
@@ -199,47 +210,48 @@ export default class FlowChartSymbol {
     return this.group.getBBox().y;
   }
 
-  shiftX(x): void {
+  shiftX(x: number): void {
     this.group.transform("t" + (this.getX() + x) + "," + this.getY());
   }
 
-  setX(x): void {
+  setX(x: number): void {
     this.group.transform("t" + x + "," + this.getY());
   }
 
-  shiftY(y): void {
+  shiftY(y: number): void {
     this.group.transform("t" + this.getX() + "," + (this.getY() + y));
   }
 
-  setY(y): void {
+  setY(y: number): void {
     this.group.transform("t" + this.getX() + "," + y);
   }
 
-  getTop() {
+  getTop(): Position {
     const y = this.getY();
     const x = this.getX() + this.width / 2;
     return { x: x, y: y };
   }
 
-  getBottom() {
+  getBottom(): Position {
     const y = this.getY() + this.height;
     const x = this.getX() + this.width / 2;
     return { x: x, y: y };
   }
 
-  getLeft() {
+  getLeft(): Position {
     const y = this.getY() + this.group.getBBox().height / 2;
     const x = this.getX();
+
     return { x: x, y: y };
   }
 
-  getRight() {
+  getRight(): Position {
     const y = this.getY() + this.group.getBBox().height / 2;
     const x = this.getX() + this.group.getBBox().width;
     return { x: x, y: y };
   }
 
-  render() {
+  render(): void {
     if (this.next) {
       const self = this;
       const lineLength = this.getAttr("line-length");
@@ -330,21 +342,22 @@ export default class FlowChartSymbol {
     }
   }
 
-  renderLines() {
-    if (this.next) {
-      if (this.next_direction) {
+  renderLines(): void {
+    if (this.next)
+      if (this.next_direction)
         this.drawLineTo(
           this.next,
           this.getAttr("arrow-text") || "",
           this.next_direction
         );
-      } else {
-        this.drawLineTo(this.next, this.getAttr("arrow-text") || "");
-      }
-    }
+      else this.drawLineTo(this.next, this.getAttr<string>("arrow-text") || "");
   }
 
-  drawLineTo(symbol: FlowChartSymbol, text, direction: Direction) {
+  drawLineTo(
+    symbol: FlowChartSymbol,
+    text: string,
+    direction?: Direction
+  ): void {
     if (this.connectedTo.indexOf(symbol) < 0) this.connectedTo.push(symbol);
 
     const x = this.getCenter().x,
@@ -370,8 +383,8 @@ export default class FlowChartSymbol {
     let maxX = 0,
       line,
       yOffset,
-      lineLength = this.getAttr("line-length"),
-      lineWith = this.getAttr("line-width");
+      lineLength = this.getAttr<number>("line-length") as number,
+      lineWith = this.getAttr<number>("line-width") as number;
 
     if ((!direction || direction === "bottom") && isOnSameColumn && isUnder) {
       if (symbol.topLines.length === 0 && this.bottomLines.length === 0) {
@@ -713,11 +726,14 @@ export default class FlowChartSymbol {
       for (let l = 0, llen = this.chart.lines.length; l < llen; l++) {
         const otherLine = this.chart.lines[l];
 
-        const ePath = otherLine.attr("path"),
-          lPath = line.attr("path");
+        const ePath = (otherLine.attr("path") as unknown) as [
+            string,
+            ...number[]
+          ][],
+          lPath = (line.attr("path") as unknown) as [string, ...number[]][];
 
         for (let iP = 0, lenP = ePath.length - 1; iP < lenP; iP++) {
-          const newPath = [];
+          const newPath: [string, ...number[]][] = [];
           newPath.push(["M", ePath[iP][1], ePath[iP][2]]);
           newPath.push(["L", ePath[iP + 1][1], ePath[iP + 1][2]]);
 
@@ -727,7 +743,7 @@ export default class FlowChartSymbol {
           const line1_to_y = newPath[1][2];
 
           for (let lP = 0, lenlP = lPath.length - 1; lP < lenlP; lP++) {
-            const newLinePath = [];
+            const newLinePath: [string, ...number[]][] = [];
             newLinePath.push(["M", lPath[lP][1], lPath[lP][2]]);
             newLinePath.push(["L", lPath[lP + 1][1], lPath[lP + 1][2]]);
 
@@ -747,7 +763,7 @@ export default class FlowChartSymbol {
               line2_to_y
             );
             if (res.onLine1 && res.onLine2) {
-              var newSegment;
+              var newSegment: [string, ...number[]];
               if (line2_from_y === line2_to_y) {
                 if (line2_from_x > line2_to_x) {
                   newSegment = ["L", res.x + lineWith * 2, line2_from_y];
@@ -762,7 +778,7 @@ export default class FlowChartSymbol {
                     line2_from_y,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
-                  line.attr("path", lPath);
+                  line.attr("path", (lPath as unknown) as string);
                 } else {
                   newSegment = ["L", res.x - lineWith * 2, line2_from_y];
                   lPath.splice(lP + 1, 0, newSegment);
@@ -776,7 +792,7 @@ export default class FlowChartSymbol {
                     line2_from_y,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
-                  line.attr("path", lPath);
+                  line.attr("path", (lPath as unknown) as string);
                 }
               } else {
                 if (line2_from_y > line2_to_y) {
@@ -792,7 +808,7 @@ export default class FlowChartSymbol {
                     res.y - lineWith * 2,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
-                  line.attr("path", lPath);
+                  line.attr("path", (lPath as unknown) as string);
                 } else {
                   newSegment = ["L", line2_from_x, res.y - lineWith * 2];
                   lPath.splice(lP + 1, 0, newSegment);
@@ -806,7 +822,7 @@ export default class FlowChartSymbol {
                     res.y + lineWith * 2,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
-                  line.attr("path", lPath);
+                  line.attr("path", (lPath as unknown) as string);
                 }
               }
 

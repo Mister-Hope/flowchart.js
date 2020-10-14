@@ -5,7 +5,7 @@ import { Position } from "./symbol/util";
 export const drawPath = (
   chart: FlowChart,
   location: Position,
-  points: Position
+  points: Position[]
 ): RaphaelPath<"SVG" | "VML"> => {
   let i, len;
   let path = "M{0},{1}";
@@ -32,7 +32,12 @@ export const drawPath = (
   return symbol;
 };
 
-export const drawLine = (chart: FlowChart, from, to, text) => {
+export const drawLine = (
+  chart: FlowChart,
+  from: Position,
+  to: Position[],
+  text
+): RaphaelPath<"SVG" | "VML"> => {
   let i, len;
 
   if (Object.prototype.toString.call(to) !== "[object Array]") to = [to];
@@ -49,7 +54,7 @@ export const drawLine = (chart: FlowChart, from, to, text) => {
 
   const line = chart.paper.path(path, pathValues);
   line.attr({
-    stroke: chart.options["line-color"],
+    stroke: chart.options["line-color"] as string,
     "stroke-width": chart.options["line-width"],
     "arrow-end": chart.options["arrow-end"],
   });

@@ -1,13 +1,15 @@
-import { RaphaelPaper, RaphaelSet } from "raphael";
-import { DrawOptions } from "./options";
+import { RaphaelPaper, RaphaelSet, RaphaelPath } from "raphael";
+import { ParsedDrawOptions } from "./options";
 import FlowChartSymbol from "./symbol/util";
 export default class FlowChart {
-    options: DrawOptions;
+    options: ParsedDrawOptions;
     symbols: FlowChartSymbol[];
-    lines: any[];
+    lines: RaphaelPath<"SVG" | "VML">[];
     start: null | FlowChartSymbol;
     paper: RaphaelPaper<"SVG" | "VML"> & RaphaelSet<"SVG" | "VML">;
-    constructor(container: string | HTMLElement, options?: DrawOptions);
+    minXFromSymbols?: number;
+    maxXFromLine?: number;
+    constructor(container: string | HTMLElement, options: ParsedDrawOptions);
     handle(symbol: FlowChartSymbol): FlowChartSymbol;
     startWith(symbol: FlowChartSymbol): FlowChartSymbol;
     render(): void;

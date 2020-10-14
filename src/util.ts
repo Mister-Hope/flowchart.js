@@ -1,15 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type IAnyObject = Record<string, any>;
 
-export const deepAssign = <
-  T extends IAnyObject,
-  U extends IAnyObject = T,
-  V extends IAnyObject = T
->(
+export const deepAssign = <T extends IAnyObject, U extends IAnyObject = T>(
   originObject: T,
   ...assignObjects: U[]
-): V => {
-  if (assignObjects.length === 0) return originObject as V;
+): T & U => {
+  if (assignObjects.length === 0) return originObject as T & U;
 
   const assignObject = assignObjects.shift() as IAnyObject;
 

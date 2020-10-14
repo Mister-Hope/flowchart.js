@@ -1,6 +1,6 @@
 import FlowChartSymbol from "./util";
-import { DrawOptions } from "../options";
+import { SymbolOptions } from "../options";
 import FlowChart from "../chart";
 export default class Subroutine extends FlowChartSymbol {
-    constructor(chart: FlowChart, options?: DrawOptions);
+    constructor(chart: FlowChart, options?: SymbolOptions);
 }

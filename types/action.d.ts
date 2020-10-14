@@ -1,8 +1,8 @@
 import { RaphaelPath } from "raphael";
 import FlowChart from "./chart";
 import { Position } from "./symbol/util";
-export declare const drawPath: (chart: FlowChart, location: Position, points: Position) => RaphaelPath<"SVG" | "VML">;
-export declare const drawLine: (chart: FlowChart, from: any, to: any, text: any) => RaphaelPath<"SVG" | "VML">;
+export declare const drawPath: (chart: FlowChart, location: Position, points: Position[]) => RaphaelPath<"SVG" | "VML">;
+export declare const drawLine: (chart: FlowChart, from: Position, to: Position[], text: any) => RaphaelPath<"SVG" | "VML">;
 export interface LineIntersectionResult {
     x: number;
     y: number;

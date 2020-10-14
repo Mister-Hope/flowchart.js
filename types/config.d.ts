@@ -1,2 +1,2 @@
-import { DrawOptions } from "./options";
-export declare const defaultConfig: DrawOptions;
+import { ParsedDrawOptions } from "./options";
+export declare const defaultConfig: ParsedDrawOptions;
