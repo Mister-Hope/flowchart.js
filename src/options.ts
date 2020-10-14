@@ -1,5 +1,3 @@
-import { Direction } from "./symbol/util";
-
 export type SymbolType =
   | "start"
   | "end"
@@ -45,6 +43,8 @@ export interface ParsedDrawOptions extends SVGOptions {
   flowstate?: Record<string, Partial<SVGOptions>>;
 }
 
+export type Direction = "top" | "right" | "left" | "bottom";
+
 export interface SymbolOptions extends ParsedDrawOptions {
   symbolType: SymbolType;
 
@@ -56,4 +56,5 @@ export interface SymbolOptions extends ParsedDrawOptions {
   function: null | string;
   lineStyle: Record<string, string>;
   params: Record<string, string>;
+  direction_next?: Direction;
 }

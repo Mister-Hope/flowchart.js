@@ -10,9 +10,9 @@ export interface ConditionSymbolOptions extends SymbolOptions {
 }
 export default class Condition extends FlowChartSymbol {
     /** Yes text */
-    yes_annotation: string;
+    yes_annotation?: string;
     /** No text */
-    no_annotation: string;
+    no_annotation?: string;
     yes_direction: Direction;
     no_direction: Direction;
     textMargin: number;
@@ -21,6 +21,8 @@ export default class Condition extends FlowChartSymbol {
     bottom_symbol?: FlowChartSymbol;
     right_symbol?: FlowChartSymbol;
     left_symbol?: FlowChartSymbol;
+    pathOk?: boolean;
+    params?: Record<string, string>;
     constructor(chart: FlowChart, options?: ConditionSymbolOptions);
     render(): void;
     renderLines(): void;

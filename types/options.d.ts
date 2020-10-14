@@ -32,6 +32,7 @@ export interface ParsedDrawOptions extends SVGOptions {
     /** FlowState config */
     flowstate?: Record<string, Partial<SVGOptions>>;
 }
+export declare type Direction = "top" | "right" | "left" | "bottom";
 export interface SymbolOptions extends ParsedDrawOptions {
     symbolType: SymbolType;
     key: string;
@@ -41,4 +42,5 @@ export interface SymbolOptions extends ParsedDrawOptions {
     function: null | string;
     lineStyle: Record<string, string>;
     params: Record<string, string>;
+    direction_next?: Direction;
 }

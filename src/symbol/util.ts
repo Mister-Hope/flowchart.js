@@ -1,9 +1,7 @@
-import { RaphaelElement, RaphaelSet } from "raphael";
-import { SymbolOptions, SymbolType } from "../options";
+import { RaphaelElement, RaphaelSet, RaphaelPath } from "raphael";
+import { Direction, SVGOptions, SymbolOptions, SymbolType } from "../options";
 import { checkLineIntersection, drawLine } from "../action";
 import Flowchart from "../chart";
-
-export type Direction = "top" | "right" | "left" | "bottom";
 
 export interface Position {
   x: number;
@@ -22,19 +20,19 @@ export default class FlowChartSymbol {
 
   symbolType: SymbolType;
 
-  flowstate: string;
+  flowstate: string | Record<string, Partial<SVGOptions>>;
   key: string;
   lineStyle: Record<string, any>;
-  leftLines: any[];
-  rightLines: any[];
-  topLines: any[];
-  bottomLines: any[];
+  leftLines: RaphaelPath<"SVG" | "VML">[];
+  rightLines: RaphaelPath<"SVG" | "VML">[];
+  topLines: RaphaelPath<"SVG" | "VML">[];
+  bottomLines: RaphaelPath<"SVG" | "VML">[];
   bottomStart?: boolean;
-  next?: any;
+  next?: FlowChartSymbol;
   next_direction: Direction | undefined;
   isPositioned?: boolean;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   topStart?: boolean;
   topEnd?: boolean;
   rightStart?: boolean;
@@ -125,17 +123,20 @@ export default class FlowChartSymbol {
     this.group.push(this.text);
 
     if (symbol) {
-      const tmpMargin = this.getAttr("text-margin");
+      const tmpMargin = this.getAttr<number>("text-margin") as number;
 
       symbol.attr({
-        fill: this.getAttr("fill"),
-        stroke: this.getAttr("element-color"),
-        "stroke-width": this.getAttr("line-width"),
+        fill: this.getAttr<string>("fill"),
+        stroke: this.getAttr<string>("element-color"),
+        "stroke-width": this.getAttr<number>("line-width"),
         width: this.text.getBBox().width + 2 * tmpMargin,
         height: this.text.getBBox().height + 2 * tmpMargin,
       });
 
-      symbol.node.setAttribute("class", this.getAttr("class"));
+      symbol.node.setAttribute(
+        "class",
+        this.getAttr<string>("class") as string
+      );
 
       if (options.link) symbol.attr("href", options.link);
 
@@ -188,7 +189,9 @@ export default class FlowChartSymbol {
 
   initialize(): void {
     this.group.transform(
-      "t" + this.getAttr("line-width") + "," + this.getAttr("line-width")
+      `t${this.getAttr<number>("line-width") as number},${
+        this.getAttr<number>("line-width") as number
+      }`
     );
 
     this.width = this.group.getBBox().width;
@@ -387,9 +390,9 @@ export default class FlowChartSymbol {
       lineWith = this.getAttr<number>("line-width") as number;
 
     if ((!direction || direction === "bottom") && isOnSameColumn && isUnder) {
-      if (symbol.topLines.length === 0 && this.bottomLines.length === 0) {
-        line = drawLine(this.chart, bottom, symbolTop, text);
-      } else {
+      if (symbol.topLines.length === 0 && this.bottomLines.length === 0)
+        line = drawLine(this.chart, bottom, [symbolTop], text);
+      else {
         yOffset =
           Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
         line = drawLine(
@@ -413,7 +416,7 @@ export default class FlowChartSymbol {
       isRight
     ) {
       if (symbol.leftLines.length === 0 && this.rightLines.length === 0)
-        line = drawLine(this.chart, right, symbolLeft, text);
+        line = drawLine(this.chart, right, [symbolLeft], text);
       else {
         yOffset =
           Math.max(symbol.leftLines.length, this.rightLines.length) * 10;
@@ -763,7 +766,7 @@ export default class FlowChartSymbol {
               line2_to_y
             );
             if (res.onLine1 && res.onLine2) {
-              var newSegment: [string, ...number[]];
+              let newSegment: [string, ...number[]];
               if (line2_from_y === line2_to_y) {
                 if (line2_from_x > line2_to_x) {
                   newSegment = ["L", res.x + lineWith * 2, line2_from_y];

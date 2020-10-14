@@ -13,9 +13,9 @@ export interface ConditionSymbolOptions extends SymbolOptions {
 
 export default class Condition extends FlowChartSymbol {
   /** Yes text */
-  yes_annotation: string;
+  yes_annotation?: string;
   /** No text */
-  no_annotation: string;
+  no_annotation?: string;
 
   yes_direction: Direction;
 
@@ -29,6 +29,8 @@ export default class Condition extends FlowChartSymbol {
   bottom_symbol?: FlowChartSymbol;
   right_symbol?: FlowChartSymbol;
   left_symbol?: FlowChartSymbol;
+  pathOk?: boolean;
+  params?: Record<string, string>;
 
   constructor(chart: FlowChart, options: ConditionSymbolOptions = {}) {
     super(chart, options);
@@ -52,6 +54,7 @@ export default class Condition extends FlowChartSymbol {
     let height = this.text.getBBox().height + 2 * this.textMargin;
     height += height / 2;
     height = Math.max(width * 0.5, height);
+
     const startX = width / 4;
     const startY = height / 4;
 

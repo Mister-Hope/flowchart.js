@@ -1,4 +1,4 @@
-import { RaphaelPath } from "raphael";
+import { RaphaelPath, RaphaelTextAnchorType } from "raphael";
 import FlowChart from "./chart";
 import { Position } from "./symbol/util";
 
@@ -7,16 +7,16 @@ export const drawPath = (
   location: Position,
   points: Position[]
 ): RaphaelPath<"SVG" | "VML"> => {
-  let i, len;
   let path = "M{0},{1}";
-  for (i = 2, len = 2 * points.length + 2; i < len; i += 2) {
-    path += " L{" + i + "},{" + (i + 1) + "}";
-  }
+
+  for (let i = 2; i < 2 * points.length + 2; i += 2)
+    path += ` L{${i}},{${i + 1}}`;
+
   const pathValues = [location.x, location.y];
-  for (i = 0, len = points.length; i < len; i++) {
-    pathValues.push(points[i].x);
-    pathValues.push(points[i].y);
-  }
+
+  for (let i = 0; i < points.length; i++)
+    pathValues.push(points[i].x, points[i].y);
+
   const symbol = chart.paper.path(path, pathValues);
   symbol.attr("stroke", chart.options["element-color"]);
   symbol.attr("stroke-width", chart.options["line-width"]);
@@ -36,25 +36,19 @@ export const drawLine = (
   chart: FlowChart,
   from: Position,
   to: Position[],
-  text
+  text: string
 ): RaphaelPath<"SVG" | "VML"> => {
-  let i, len;
-
-  if (Object.prototype.toString.call(to) !== "[object Array]") to = [to];
-
   let path = "M{0},{1}";
-  for (i = 2, len = 2 * to.length + 2; i < len; i += 2) {
-    path += " L{" + i + "},{" + (i + 1) + "}";
-  }
+
+  for (let i = 2; i < 2 * to.length + 2; i += 2) path += ` L{${i}},{${i + 1}}`;
+
   const pathValues = [from.x, from.y];
-  for (i = 0, len = to.length; i < len; i++) {
-    pathValues.push(to[i].x);
-    pathValues.push(to[i].y);
-  }
+
+  for (let i = 0; i < to.length; i++) pathValues.push(to[i].x, to[i].y);
 
   const line = chart.paper.path(path, pathValues);
   line.attr({
-    stroke: chart.options["line-color"] as string,
+    stroke: chart.options["line-color"],
     "stroke-width": chart.options["line-width"],
     "arrow-end": chart.options["arrow-end"],
   });
@@ -71,7 +65,7 @@ export const drawLine = (
     const centerText = false;
 
     const textPath = chart.paper.text(0, 0, text);
-    let textAnchor = "start";
+    let textAnchor: RaphaelTextAnchorType = "start";
 
     let isHorizontal = false;
     const firstTo = to[0];
@@ -90,9 +84,9 @@ export const drawLine = (
 
       if (isHorizontal) {
         x -= textPath.getBBox().width / 2;
-        y -= chart.options["text-margin"] as number;
+        y -= chart.options["text-margin"];
       } else {
-        x += chart.options["text-margin"] as number;
+        x += chart.options["text-margin"];
         y -= textPath.getBBox().height / 2;
       }
     } else {
@@ -117,8 +111,8 @@ export const drawLine = (
       "text-anchor": textAnchor,
       "font-size": chart.options["font-size"],
       fill: chart.options["font-color"],
-      x: x,
-      y: y,
+      x,
+      y,
     });
 
     if (font) textPath.attr({ font: font });
@@ -130,10 +124,10 @@ export const drawLine = (
 };
 
 export interface LineIntersectionResult {
-  x: number;
-  y: number;
-  onLine1: false;
-  onLine2: false;
+  x: number | null;
+  y: number | null;
+  onLine1: boolean;
+  onLine2: boolean;
 }
 
 export const checkLineIntersection = (
@@ -147,29 +141,29 @@ export const checkLineIntersection = (
   line2EndY: number
 ): LineIntersectionResult => {
   // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
-  let denominator,
-    a,
-    b,
-    result = {
-      x: null,
-      y: null,
-      onLine1: false,
-      onLine2: false,
-    };
-  denominator =
+  const result: LineIntersectionResult = {
+    x: null,
+    y: null,
+    onLine1: false,
+    onLine2: false,
+  };
+  const denominator =
     (line2EndY - line2StartY) * (line1EndX - line1StartX) -
     (line2EndX - line2StartX) * (line1EndY - line1StartY);
+
   if (denominator === 0) return result;
 
-  a = line1StartY - line2StartY;
-  b = line1StartX - line2StartX;
+  const yDistance = line1StartY - line2StartY;
+  const xDistance = line1StartX - line2StartX;
   const numerator1 =
-    (line2EndX - line2StartX) * a - (line2EndY - line2StartY) * b;
+    (line2EndX - line2StartX) * yDistance -
+    (line2EndY - line2StartY) * xDistance;
   const numerator2 =
-    (line1EndX - line1StartX) * a - (line1EndY - line1StartY) * b;
+    (line1EndX - line1StartX) * yDistance -
+    (line1EndY - line1StartY) * xDistance;
 
-  a = numerator1 / denominator;
-  b = numerator2 / denominator;
+  const a = numerator1 / denominator;
+  const b = numerator2 / denominator;
 
   // if we cast these lines infinitely in both directions, they intersect here:
   result.x = line1StartX + a * (line1EndX - line1StartX);

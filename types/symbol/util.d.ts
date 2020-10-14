@@ -1,7 +1,6 @@
-import { RaphaelElement, RaphaelSet } from "raphael";
-import { SymbolOptions, SymbolType } from "../options";
+import { RaphaelElement, RaphaelSet, RaphaelPath } from "raphael";
+import { Direction, SVGOptions, SymbolOptions, SymbolType } from "../options";
 import Flowchart from "../chart";
-export declare type Direction = "top" | "right" | "left" | "bottom";
 export interface Position {
     x: number;
     y: number;
@@ -13,19 +12,19 @@ export default class FlowChartSymbol {
     group: RaphaelSet<"SVG" | "VML">;
     symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>;
     symbolType: SymbolType;
-    flowstate: string;
+    flowstate: string | Record<string, Partial<SVGOptions>>;
     key: string;
     lineStyle: Record<string, any>;
-    leftLines: any[];
-    rightLines: any[];
-    topLines: any[];
-    bottomLines: any[];
+    leftLines: RaphaelPath<"SVG" | "VML">[];
+    rightLines: RaphaelPath<"SVG" | "VML">[];
+    topLines: RaphaelPath<"SVG" | "VML">[];
+    bottomLines: RaphaelPath<"SVG" | "VML">[];
     bottomStart?: boolean;
-    next?: any;
+    next?: FlowChartSymbol;
     next_direction: Direction | undefined;
     isPositioned?: boolean;
-    width?: number;
-    height?: number;
+    width: number;
+    height: number;
     topStart?: boolean;
     topEnd?: boolean;
     rightStart?: boolean;
