@@ -176,15 +176,17 @@ export default class FlowChartSymbol {
       ? this.chart.options.symbols[this.symbolType][attName]
       : undefined;
 
-    let opt1: T | undefined;
-
     if (
       this.chart.options.flowstate &&
       this.chart.options.flowstate[this.flowstate]
-    )
-      opt1 = this.chart.options.flowstate[this.flowstate][attName];
+    ) {
+      const opt1: T | undefined = this.chart.options.flowstate[this.flowstate][
+        attName
+      ];
+      if (opt1) return opt1;
+    }
 
-    return opt1 || opt2 || opt3;
+    return opt2 || opt3;
   }
 
   initialize(): void {
@@ -257,7 +259,7 @@ export default class FlowChartSymbol {
   render(): void {
     if (this.next) {
       const self = this;
-      const lineLength = this.getAttr("line-length");
+      const lineLength = this.getAttr<number>("line-length") as number;
 
       if (this.next_direction === "right") {
         const rightPoint = this.getRight();
@@ -439,7 +441,7 @@ export default class FlowChartSymbol {
       maxX = symbolLeft.x;
     } else if ((!direction || direction === "left") && isOnSameLine && isLeft) {
       if (symbol.rightLines.length === 0 && this.leftLines.length === 0)
-        line = drawLine(this.chart, left, symbolRight, text);
+        line = drawLine(this.chart, left, [symbolRight], text);
       else {
         yOffset =
           Math.max(symbol.rightLines.length, this.leftLines.length) * 10;

@@ -1,3 +1,5 @@
+import FlowChartSymbol from "./symbol/util";
+
 export type SymbolType =
   | "start"
   | "end"
@@ -43,7 +45,14 @@ export interface ParsedDrawOptions extends SVGOptions {
   flowstate?: Record<string, Partial<SVGOptions>>;
 }
 
-export type Direction = "top" | "right" | "left" | "bottom";
+export type Direction =
+  | "top"
+  | "right"
+  | "left"
+  | "bottom"
+  | "path1"
+  | "path2"
+  | "path3";
 
 export interface SymbolOptions extends ParsedDrawOptions {
   symbolType: SymbolType;
@@ -57,4 +66,12 @@ export interface SymbolOptions extends ParsedDrawOptions {
   lineStyle: Record<string, string>;
   params: Record<string, string>;
   direction_next?: Direction;
+  next?: FlowChartSymbol;
+
+  path1?: FlowChartSymbol;
+  path2?: FlowChartSymbol;
+  path3?: FlowChartSymbol;
+  direction_path1: Direction;
+  direction_path2: Direction;
+  direction_path3: Direction;
 }

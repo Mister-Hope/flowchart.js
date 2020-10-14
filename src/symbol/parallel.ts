@@ -1,18 +1,27 @@
-import FlowChartSymbol, { Direction } from "./util";
-import { SymbolOptions } from "../options";
+import FlowChartSymbol from "./util";
+import { Direction, SymbolOptions } from "../options";
 import FlowChart from "../chart";
-
-export interface ParralSymbolOptions extends SymbolOptions {
-  next?: any;
-  direction_next?: Direction;
-}
 
 export default class Parallel extends FlowChartSymbol {
   path1_direction: Direction;
+  path1_symbol?: FlowChartSymbol;
   path2_direction: Direction;
+  path2_symbol?: FlowChartSymbol;
   path3_direction: Direction;
 
-  constructor(chart: FlowChart, options: ParralSymbolOptions = {}) {
+  path3_symbol?: FlowChartSymbol;
+  pathOk?: boolean;
+  path1?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
+  path2?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
+  path3?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
+  textMargin?: number;
+  params: Record<string, string>;
+  top_symbol?: FlowChartSymbol;
+  bottom_symbol?: FlowChartSymbol;
+  left_symbol?: FlowChartSymbol;
+  right_symbol?: FlowChartSymbol;
+
+  constructor(chart: FlowChart, options: SymbolOptions = {}) {
     const symbol = chart.paper.rect(0, 0, 0, 0);
     super(chart, options, symbol);
     this.textMargin = this.getAttr("text-margin");
@@ -135,7 +144,7 @@ export default class Parallel extends FlowChartSymbol {
       this[this.path3_direction + "_symbol"] = this.path3_symbol;
     }
 
-    const lineLength = this.getAttr("line-length");
+    const lineLength = this.getAttr<number>("line-length") as number;
 
     if (this.bottom_symbol) {
       const bottomPoint = this.getBottom();
@@ -254,17 +263,14 @@ export default class Parallel extends FlowChartSymbol {
     }
   }
 
-  renderLines() {
-    if (this.path1_symbol) {
+  renderLines(): void {
+    if (this.path1_symbol)
       this.drawLineTo(this.path1_symbol, "", this.path1_direction);
-    }
 
-    if (this.path2_symbol) {
+    if (this.path2_symbol)
       this.drawLineTo(this.path2_symbol, "", this.path2_direction);
-    }
 
-    if (this.path3_symbol) {
+    if (this.path3_symbol)
       this.drawLineTo(this.path3_symbol, "", this.path3_direction);
-    }
   }
 }

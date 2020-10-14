@@ -31,6 +31,8 @@ export default class Condition extends FlowChartSymbol {
   left_symbol?: FlowChartSymbol;
   pathOk?: boolean;
   params?: Record<string, string>;
+  yes?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
+  no?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
 
   constructor(chart: FlowChart, options: ConditionSymbolOptions = {}) {
     super(chart, options);

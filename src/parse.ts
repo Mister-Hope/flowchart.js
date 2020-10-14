@@ -1,6 +1,5 @@
 import FlowChart from "./chart";
 import { DrawOptions, SymbolOptions } from "./options";
-
 import Condition from "./symbol/condition";
 import End from "./symbol/end";
 import InputOutput from "./symbol/inputoutput";
@@ -11,7 +10,7 @@ import Subroutine from "./symbol/subroutine";
 import FlowchartSymbol from "./symbol/util";
 
 const chart = {
-  symbols: {},
+  symbols: {} as Record<string, SymbolOptions>,
   start: null,
   diagram: null as null | FlowChart,
   drawSVG(container: HTMLElement | string, options: DrawOptions) {
@@ -56,7 +55,11 @@ const chart = {
       return dispSymbols[options.key];
     };
 
-    (function constructChart(symbol, prevDisp, prev) {
+    (function constructChart(
+      symbol: FlowchartSymbol,
+      prevDisp: FlowchartSymbol,
+      prev: FlowchartSymbol
+    ) {
       const dispSymb = getDisplaySymbol(symbol);
 
       if (self.start === symbol) diagram.startWith(dispSymb);
@@ -74,13 +77,10 @@ const chart = {
         } else prevDisp.then(dispSymb);
       }
 
-      if (dispSymb.pathOk) {
-        return dispSymb;
-      }
+      if (dispSymb.pathOk) return dispSymb;
 
       if (dispSymb instanceof Condition) {
         if (symbol.yes) constructChart(symbol.yes, dispSymb, symbol);
-
         if (symbol.no) constructChart(symbol.no, dispSymb, symbol);
       } else if (dispSymb instanceof Parallel) {
         if (symbol.path1) constructChart(symbol.path1, dispSymb, symbol);
