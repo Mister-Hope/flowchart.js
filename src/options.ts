@@ -1,4 +1,4 @@
-import FlowChartSymbol from "./symbol/util";
+import FlowChartSymbol from "./symbol/symbol";
 
 export type SymbolType =
   | "start"

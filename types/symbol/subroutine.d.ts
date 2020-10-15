@@ -1,4 +1,4 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import { SymbolOptions } from "../options";
 import FlowChart from "../chart";
 export default class Subroutine extends FlowChartSymbol {

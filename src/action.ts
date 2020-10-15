@@ -1,6 +1,6 @@
 import { RaphaelPath, RaphaelTextAnchorType } from "raphael";
 import FlowChart from "./chart";
-import { Position } from "./symbol/util";
+import { Position } from "./symbol/symbol";
 
 export const drawPath = (
   chart: FlowChart,

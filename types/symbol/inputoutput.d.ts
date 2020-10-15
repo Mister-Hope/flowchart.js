@@ -1,7 +1,7 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import FlowChart from "../chart";
 import { SymbolOptions } from "../options";
-import { Position } from "./util";
+import { Position } from "./symbol";
 export default class InputOutput extends FlowChartSymbol {
     then?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
     textMargin: number;

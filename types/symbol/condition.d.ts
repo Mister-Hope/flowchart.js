@@ -1,7 +1,6 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import FlowChart from "../chart";
-import { Direction } from "./util";
-import { SymbolOptions } from "../options";
+import { Direction, SymbolOptions } from "../options";
 export interface ConditionSymbolOptions extends SymbolOptions {
     yes_annotation?: string;
     no_annotation?: string;
@@ -22,7 +21,7 @@ export default class Condition extends FlowChartSymbol {
     right_symbol?: FlowChartSymbol;
     left_symbol?: FlowChartSymbol;
     pathOk?: boolean;
-    params?: Record<string, string>;
+    params: Record<string, string>;
     yes?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
     no?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
     constructor(chart: FlowChart, options?: ConditionSymbolOptions);

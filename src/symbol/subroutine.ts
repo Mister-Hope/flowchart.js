@@ -1,4 +1,4 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import { SymbolOptions } from "../options";
 import FlowChart from "../chart";
 
@@ -9,29 +9,35 @@ export default class Subroutine extends FlowChartSymbol {
     super(chart, options, symbol);
 
     symbol.attr({
-      width: this.text.getBBox().width + 4 * this.getAttr("text-margin"),
+      width:
+        this.text.getBBox().width +
+        4 * (this.getAttr<number>("text-margin") as number),
     });
 
     this.text.attr({
-      x: 2 * this.getAttr("text-margin"),
+      x: 2 * (this.getAttr<number>("text-margin") as number),
     });
 
     const innerWrap = chart.paper.rect(0, 0, 0, 0);
     innerWrap.attr({
-      x: this.getAttr("text-margin"),
-      stroke: this.getAttr("element-color"),
-      "stroke-width": this.getAttr("line-width"),
-      width: this.text.getBBox().width + 2 * this.getAttr("text-margin"),
-      height: this.text.getBBox().height + 2 * this.getAttr("text-margin"),
-      fill: this.getAttr("fill"),
+      x: this.getAttr<number>("text-margin"),
+      stroke: this.getAttr<string>("element-color"),
+      "stroke-width": this.getAttr<number>("line-width"),
+      width:
+        this.text.getBBox().width +
+        2 * (this.getAttr<number>("text-margin") as number),
+      height:
+        this.text.getBBox().height +
+        2 * (this.getAttr<number>("text-margin") as number),
+      fill: this.getAttr<string>("fill"),
     });
     if (options.key) {
       innerWrap.node.id = options.key + "i";
     }
 
-    const font = this.getAttr("font");
-    const fontF = this.getAttr("font-family");
-    const fontW = this.getAttr("font-weight");
+    const font = this.getAttr<string>("font");
+    const fontF = this.getAttr<string>("font-family");
+    const fontW = this.getAttr<string>("font-weight");
 
     if (font) innerWrap.attr({ font: font });
     if (fontF) innerWrap.attr({ "font-family": fontF });

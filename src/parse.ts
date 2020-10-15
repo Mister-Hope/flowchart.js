@@ -7,13 +7,13 @@ import Operation from "./symbol/operation";
 import Parallel from "./symbol/parallel";
 import Start from "./symbol/start";
 import Subroutine from "./symbol/subroutine";
-import FlowchartSymbol from "./symbol/util";
+import FlowchartSymbol from "./symbol/symbol";
 
 const chart = {
   symbols: {} as Record<string, SymbolOptions>,
   start: null,
   diagram: null as null | FlowChart,
-  drawSVG(container: HTMLElement | string, options: DrawOptions) {
+  drawSVG(container: HTMLElement | string, options: DrawOptions): void {
     const self = this;
 
     if (this.diagram) this.diagram.clean();
@@ -55,14 +55,14 @@ const chart = {
       return dispSymbols[options.key];
     };
 
-    (function constructChart(
-      symbol: FlowchartSymbol,
+    const constructChart = (
+      symbol: SymbolOptions,
       prevDisp: FlowchartSymbol,
       prev: FlowchartSymbol
-    ) {
+    ) => {
       const dispSymb = getDisplaySymbol(symbol);
 
-      if (self.start === symbol) diagram.startWith(dispSymb);
+      if (this.start === symbol) diagram.startWith(dispSymb);
       else if (prevDisp && prev && !prevDisp.pathOk) {
         if (prevDisp instanceof Condition) {
           if (prev.yes === symbol) prevDisp.yes(dispSymb);
@@ -91,16 +91,18 @@ const chart = {
       } else if (symbol.next) constructChart(symbol.next, dispSymb, symbol);
 
       return dispSymb;
-    })(this.start);
+    };
+
+    constructChart(this.start);
 
     diagram.render();
   },
 
-  clean() {
+  clean(): void {
     this.diagram.clean();
   },
 
-  options() {
+  options(): void {
     return this.diagram.options;
   },
 };

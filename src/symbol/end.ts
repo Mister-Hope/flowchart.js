@@ -1,4 +1,4 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import FlowChart from "../chart";
 import { SymbolOptions } from "../options";
 

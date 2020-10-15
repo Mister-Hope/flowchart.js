@@ -1,4 +1,4 @@
-import FlowChartSymbol from "./symbol/util";
+import FlowChartSymbol from "./symbol/symbol";
 export declare type SymbolType = "start" | "end" | "operation" | "inputoutput" | "subroutine" | "condition" | "parallel";
 export interface SVGOptions {
     x: number;

@@ -1,0 +1,51 @@
+import { RaphaelElement, RaphaelSet, RaphaelPath } from "raphael";
+import { Direction, SVGOptions, SymbolOptions, SymbolType } from "../options";
+import Flowchart from "../chart";
+export interface Position {
+    x: number;
+    y: number;
+}
+export default class FlowChartSymbol {
+    chart: Flowchart;
+    text: RaphaelElement<"SVG" | "VML", Element | SVGTextElement>;
+    connectedTo: FlowChartSymbol[];
+    group: RaphaelSet<"SVG" | "VML">;
+    symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>;
+    symbolType: SymbolType;
+    flowstate: string | Record<string, Partial<SVGOptions>>;
+    key: string;
+    lineStyle: Record<string, any>;
+    leftLines: RaphaelPath<"SVG" | "VML">[];
+    rightLines: RaphaelPath<"SVG" | "VML">[];
+    topLines: RaphaelPath<"SVG" | "VML">[];
+    bottomLines: RaphaelPath<"SVG" | "VML">[];
+    bottomStart?: boolean;
+    next?: FlowChartSymbol;
+    next_direction: Direction | undefined;
+    isPositioned?: boolean;
+    width: number;
+    height: number;
+    topStart?: boolean;
+    topEnd?: boolean;
+    rightStart?: boolean;
+    leftStart?: boolean;
+    leftEnd?: boolean;
+    rightEnd?: boolean;
+    constructor(chart: Flowchart, options: SymbolOptions, symbol?: RaphaelElement<"SVG" | "VML", Element | SVGRectElement>);
+    getAttr<T>(attName: string): T | undefined;
+    initialize(): void;
+    getCenter(): Position;
+    getX(): number;
+    getY(): number;
+    shiftX(x: number): void;
+    setX(x: number): void;
+    shiftY(y: number): void;
+    setY(y: number): void;
+    getTop(): Position;
+    getBottom(): Position;
+    getLeft(): Position;
+    getRight(): Position;
+    render(): void;
+    renderLines(): void;
+    drawLineTo(symbol: FlowChartSymbol, text: string, direction?: Direction): void;
+}

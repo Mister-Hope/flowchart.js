@@ -1,8 +1,7 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import { drawPath } from "../action";
 import FlowChart from "../chart";
-import { Direction } from "./util";
-import { SymbolOptions } from "../options";
+import { Direction, SymbolOptions } from "../options";
 
 export interface ConditionSymbolOptions extends SymbolOptions {
   yes_annotation?: string;
@@ -30,7 +29,7 @@ export default class Condition extends FlowChartSymbol {
   right_symbol?: FlowChartSymbol;
   left_symbol?: FlowChartSymbol;
   pathOk?: boolean;
-  params?: Record<string, string>;
+  params: Record<string, string>;
   yes?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
   no?: (nextSymbol: FlowChartSymbol) => FlowChartSymbol;
 
@@ -109,7 +108,7 @@ export default class Condition extends FlowChartSymbol {
 
     if (this.no_direction) this[`${this.no_direction}_symbol`] = this.no_symbol;
 
-    const lineLength = this.getAttr<number>("line-length");
+    const lineLength = this.getAttr<number>("line-length") as number;
 
     if (this.bottom_symbol) {
       const bottomPoint = this.getBottom();
@@ -131,24 +130,23 @@ export default class Condition extends FlowChartSymbol {
           this.group.getBBox().x + this.width + lineLength
         );
 
-        const self = this;
-        (function shift() {
+        const shift = (): void => {
           let hasSymbolUnder = false;
-          let symb;
-          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
-            symb = self.chart.symbols[i];
+          let symbol;
+          for (let index = 0; index < this.chart.symbols.length; index++) {
+            symbol = this.chart.symbols[index];
 
             if (
-              !self.params["align-next"] ||
-              self.params["align-next"] !== "no"
+              !this.params["align-next"] ||
+              this.params["align-next"] !== "no"
             ) {
               const diff = Math.abs(
-                symb.getCenter().x - self.right_symbol.getCenter().x
+                symbol.getCenter().x - this.right_symbol!.getCenter().x
               );
 
               if (
-                symb.getCenter().y > self.right_symbol.getCenter().y &&
-                diff <= self.right_symbol.width / 2
+                symbol.getCenter().y > this.right_symbol!.getCenter().y &&
+                diff <= this.right_symbol!.width / 2
               ) {
                 hasSymbolUnder = true;
                 break;
@@ -157,11 +155,13 @@ export default class Condition extends FlowChartSymbol {
           }
 
           if (hasSymbolUnder) {
-            if (self.right_symbol.symbolType === "end") return;
-            self.right_symbol.setX(symb.getX() + symb.width + lineLength);
+            if (this.right_symbol!.symbolType === "end") return;
+            this.right_symbol!.setX(symbol.getX() + symbol.width + lineLength);
             shift();
           }
-        })();
+        };
+
+        shift();
 
         this.right_symbol.isPositioned = true;
 
@@ -177,23 +177,22 @@ export default class Condition extends FlowChartSymbol {
         this.left_symbol.shiftX(
           -(this.group.getBBox().x + this.width + lineLength)
         );
-        const self = this;
-        (function shift() {
+        const shift = (): void => {
           let hasSymbolUnder = false;
-          let symb;
-          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
-            symb = self.chart.symbols[i];
+          let symbol;
+          for (let i = 0, len = this.chart.symbols.length; i < len; i++) {
+            symbol = this.chart.symbols[i];
 
             if (
-              !self.params["align-next"] ||
-              self.params["align-next"] !== "no"
+              !this.params["align-next"] ||
+              this.params["align-next"] !== "no"
             ) {
               const diff = Math.abs(
-                symb.getCenter().x - self.left_symbol.getCenter().x
+                symbol.getCenter().x - this.left_symbol!.getCenter().x
               );
               if (
-                symb.getCenter().y > self.left_symbol.getCenter().y &&
-                diff <= self.left_symbol.width / 2
+                symbol.getCenter().y > this.left_symbol!.getCenter().y &&
+                diff <= this.left_symbol!.width / 2
               ) {
                 hasSymbolUnder = true;
                 break;
@@ -202,11 +201,13 @@ export default class Condition extends FlowChartSymbol {
           }
 
           if (hasSymbolUnder) {
-            if (self.left_symbol.symbolType === "end") return;
-            self.left_symbol.setX(symb.getX() + symb.width + lineLength);
+            if (this.left_symbol!.symbolType === "end") return;
+            this.left_symbol!.setX(symbol.getX() + symbol.width + lineLength);
             shift();
           }
-        })();
+        };
+
+        shift();
 
         this.left_symbol.isPositioned = true;
 

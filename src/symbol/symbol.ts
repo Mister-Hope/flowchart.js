@@ -23,10 +23,10 @@ export default class FlowChartSymbol {
   flowstate: string | Record<string, Partial<SVGOptions>>;
   key: string;
   lineStyle: Record<string, any>;
-  leftLines: RaphaelPath<"SVG" | "VML">[];
-  rightLines: RaphaelPath<"SVG" | "VML">[];
-  topLines: RaphaelPath<"SVG" | "VML">[];
-  bottomLines: RaphaelPath<"SVG" | "VML">[];
+  leftLines: RaphaelPath<"SVG" | "VML">[] = [];
+  rightLines: RaphaelPath<"SVG" | "VML">[] = [];
+  topLines: RaphaelPath<"SVG" | "VML">[] = [];
+  bottomLines: RaphaelPath<"SVG" | "VML">[] = [];
   bottomStart?: boolean;
   next?: FlowChartSymbol;
   next_direction: Direction | undefined;
@@ -52,10 +52,6 @@ export default class FlowChartSymbol {
     this.flowstate = options.flowstate || "future";
     this.lineStyle = options.lineStyle || {};
     this.key = options.key || "";
-    this.leftLines = [];
-    this.rightLines = [];
-    this.topLines = [];
-    this.bottomLines = [];
 
     this.next_direction =
       options.next && options["direction_next"]
@@ -98,9 +94,7 @@ export default class FlowChartSymbol {
       );
     }
 
-    if (options.target) {
-      this.text.attr("target", options.target);
-    }
+    if (options.target) this.text.attr("target", options.target);
 
     const maxWidth = this.getAttr<number>("maxWidth");
 
@@ -108,14 +102,13 @@ export default class FlowChartSymbol {
       // using this approach: http://stackoverflow.com/a/3153457/22466
       const words = options.text.split(" ");
       let tempText = "";
-      for (let i = 0, ii = words.length; i < ii; i++) {
-        const word = words[i];
+
+      for (let index = 0; index < words.length; index++) {
+        const word = words[index];
         this.text.attr("text", tempText + " " + word);
-        if (this.text.getBBox().width > maxWidth) {
-          tempText += "\n" + word;
-        } else {
-          tempText += " " + word;
-        }
+
+        if (this.text.getBBox().width > maxWidth) tempText += `\n${word}`;
+        else tempText += ` ${word}`;
       }
       this.text.attr("text", tempText.substring(1));
     }
@@ -133,14 +126,14 @@ export default class FlowChartSymbol {
         height: this.text.getBBox().height + 2 * tmpMargin,
       });
 
+      if (options.link) symbol.attr("href", options.link);
+
+      if (options.target) symbol.attr("target", options.target);
+
       symbol.node.setAttribute(
         "class",
         this.getAttr<string>("class") as string
       );
-
-      if (options.link) symbol.attr("href", options.link);
-
-      if (options.target) symbol.attr("target", options.target);
 
       //ndrqu Add click function with event and options params
       if (options.function) {
@@ -216,30 +209,32 @@ export default class FlowChartSymbol {
   }
 
   shiftX(x: number): void {
-    this.group.transform("t" + (this.getX() + x) + "," + this.getY());
+    this.group.transform(`t${this.getX() + x},${this.getY()}`);
   }
 
   setX(x: number): void {
-    this.group.transform("t" + x + "," + this.getY());
+    this.group.transform(`t${x},${this.getY()}`);
   }
 
   shiftY(y: number): void {
-    this.group.transform("t" + this.getX() + "," + (this.getY() + y));
+    this.group.transform(`$t${this.getX()},${this.getY() + y}`);
   }
 
   setY(y: number): void {
-    this.group.transform("t" + this.getX() + "," + y);
+    this.group.transform(`t${this.getX()},${y}`);
   }
 
   getTop(): Position {
     const y = this.getY();
     const x = this.getX() + this.width / 2;
+
     return { x: x, y: y };
   }
 
   getBottom(): Position {
     const y = this.getY() + this.height;
     const x = this.getX() + this.width / 2;
+
     return { x: x, y: y };
   }
 
@@ -253,6 +248,7 @@ export default class FlowChartSymbol {
   getRight(): Position {
     const y = this.getY() + this.group.getBBox().height / 2;
     const x = this.getX() + this.group.getBBox().width;
+
     return { x: x, y: y };
   }
 
@@ -268,18 +264,18 @@ export default class FlowChartSymbol {
           this.next.setY(rightPoint.y - this.next.height / 2);
           this.next.shiftX(this.group.getBBox().x + this.width + lineLength);
 
-          (function shift() {
+          const shift = (): void => {
             let hasSymbolUnder = false;
             let symb;
-            for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
-              symb = self.chart.symbols[i];
+            for (let index = 0; index < this.chart.symbols.length; index++) {
+              symb = self.chart.symbols[index];
 
               const diff = Math.abs(
-                symb.getCenter().x - self.next.getCenter().x
+                symb.getCenter().x - this.next!.getCenter().x
               );
               if (
-                symb.getCenter().y > self.next.getCenter().y &&
-                diff <= self.next.width / 2
+                symb.getCenter().y > this.next!.getCenter().y &&
+                diff <= this.next!.width / 2
               ) {
                 hasSymbolUnder = true;
                 break;
@@ -287,11 +283,14 @@ export default class FlowChartSymbol {
             }
 
             if (hasSymbolUnder) {
-              if (self.next.symbolType === "end") return;
-              self.next.setX(symb.getX() + symb.width + lineLength);
+              if (this.next!.symbolType === "end") return;
+
+              this.next!.setX(symb.getX() + symb.width + lineLength);
               shift();
             }
-          })();
+          };
+
+          shift();
 
           this.next.isPositioned = true;
 
@@ -304,18 +303,18 @@ export default class FlowChartSymbol {
           this.next.setY(leftPoint.y - this.next.height / 2);
           this.next.shiftX(-(this.group.getBBox().x + this.width + lineLength));
 
-          (function shift() {
+          const shift = (): void => {
             let hasSymbolUnder = false;
             let symb;
-            for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
+            for (let i = 0; i < this.chart.symbols.length; i++) {
               symb = self.chart.symbols[i];
 
               const diff = Math.abs(
-                symb.getCenter().x - self.next.getCenter().x
+                symb.getCenter().x - this.next!.getCenter().x
               );
               if (
-                symb.getCenter().y > self.next.getCenter().y &&
-                diff <= self.next.width / 2
+                symb.getCenter().y > this.next!.getCenter().y &&
+                diff <= this.next!.width / 2
               ) {
                 hasSymbolUnder = true;
                 break;
@@ -323,11 +322,13 @@ export default class FlowChartSymbol {
             }
 
             if (hasSymbolUnder) {
-              if (self.next.symbolType === "end") return;
-              self.next.setX(symb.getX() + symb.width + lineLength);
+              if (this.next!.symbolType === "end") return;
+              this.next!.setX(symb.getX() + symb.width + lineLength);
               shift();
             }
-          })();
+          };
+
+          shift();
 
           this.next.isPositioned = true;
 
@@ -386,16 +387,15 @@ export default class FlowChartSymbol {
       isRight = x < symbolX;
 
     let maxX = 0,
-      line,
-      yOffset,
-      lineLength = this.getAttr<number>("line-length") as number,
-      lineWith = this.getAttr<number>("line-width") as number;
+      line;
+    const lineLength = this.getAttr<number>("line-length") as number;
+    const lineWith = this.getAttr<number>("line-width") as number;
 
     if ((!direction || direction === "bottom") && isOnSameColumn && isUnder) {
       if (symbol.topLines.length === 0 && this.bottomLines.length === 0)
         line = drawLine(this.chart, bottom, [symbolTop], text);
       else {
-        yOffset =
+        const yOffset =
           Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
         line = drawLine(
           this.chart,
@@ -420,7 +420,7 @@ export default class FlowChartSymbol {
       if (symbol.leftLines.length === 0 && this.rightLines.length === 0)
         line = drawLine(this.chart, right, [symbolLeft], text);
       else {
-        yOffset =
+        const yOffset =
           Math.max(symbol.leftLines.length, this.rightLines.length) * 10;
         line = drawLine(
           this.chart,
@@ -443,7 +443,7 @@ export default class FlowChartSymbol {
       if (symbol.rightLines.length === 0 && this.leftLines.length === 0)
         line = drawLine(this.chart, left, [symbolRight], text);
       else {
-        yOffset =
+        const yOffset =
           Math.max(symbol.rightLines.length, this.leftLines.length) * 10;
         line = drawLine(
           this.chart,
@@ -467,7 +467,8 @@ export default class FlowChartSymbol {
       isOnSameColumn &&
       isUpper
     ) {
-      yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
         right,
@@ -492,7 +493,8 @@ export default class FlowChartSymbol {
       isOnSameColumn &&
       isUnder
     ) {
-      yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
         right,
@@ -513,7 +515,8 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = right.x + lineLength / 2;
     } else if ((!direction || direction === "bottom") && isLeft) {
-      yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       if (this.leftEnd && isUpper) {
         line = drawLine(
           this.chart,
@@ -551,7 +554,8 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = bottom.x + (bottom.x - symbolTop.x) / 2;
     } else if ((!direction || direction === "bottom") && isRight && isUnder) {
-      yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       line = drawLine(
         this.chart,
         bottom,
@@ -569,7 +573,8 @@ export default class FlowChartSymbol {
       maxX = bottom.x;
       if (symbolTop.x > maxX) maxX = symbolTop.x;
     } else if ((!direction || direction === "bottom") && isRight) {
-      yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       line = drawLine(
         this.chart,
         bottom,
@@ -594,7 +599,8 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = bottom.x + (bottom.x - symbolTop.x) / 2;
     } else if (direction && direction === "right" && isLeft) {
-      yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
         right,
@@ -615,7 +621,8 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = right.x + lineLength / 2;
     } else if (direction && direction === "right" && isRight) {
-      yOffset = Math.max(symbol.topLines.length, this.rightLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.rightLines.length) * 10;
       line = drawLine(
         this.chart,
         right,
@@ -636,7 +643,8 @@ export default class FlowChartSymbol {
       isOnSameColumn &&
       isUpper
     ) {
-      yOffset = Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.bottomLines.length) * 10;
       line = drawLine(
         this.chart,
         bottom,
@@ -665,7 +673,8 @@ export default class FlowChartSymbol {
       if (symbolLeft.x < left.x) {
         diffX = symbolLeft.x - lineLength / 2;
       }
-      yOffset = Math.max(symbol.topLines.length, this.leftLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.leftLines.length) * 10;
       line = drawLine(
         this.chart,
         left,
@@ -683,7 +692,8 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = left.x;
     } else if (direction === "left") {
-      yOffset = Math.max(symbol.topLines.length, this.leftLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.leftLines.length) * 10;
       line = drawLine(
         this.chart,
         left,
@@ -704,7 +714,8 @@ export default class FlowChartSymbol {
       symbol.topEnd = true;
       maxX = left.x;
     } else if (direction === "top") {
-      yOffset = Math.max(symbol.topLines.length, this.topLines.length) * 10;
+      const yOffset =
+        Math.max(symbol.topLines.length, this.topLines.length) * 10;
       line = drawLine(
         this.chart,
         top,
@@ -723,9 +734,8 @@ export default class FlowChartSymbol {
     }
 
     //update line style
-    if (this.lineStyle[symbol.key] && line) {
+    if (this.lineStyle[symbol.key] && line)
       line.attr(this.lineStyle[symbol.key]);
-    }
 
     if (line) {
       for (let l = 0, llen = this.chart.lines.length; l < llen; l++) {
@@ -742,88 +752,88 @@ export default class FlowChartSymbol {
           newPath.push(["M", ePath[iP][1], ePath[iP][2]]);
           newPath.push(["L", ePath[iP + 1][1], ePath[iP + 1][2]]);
 
-          const line1_from_x = newPath[0][1];
-          const line1_from_y = newPath[0][2];
-          const line1_to_x = newPath[1][1];
-          const line1_to_y = newPath[1][2];
+          const line1FromX = newPath[0][1];
+          const line1FromY = newPath[0][2];
+          const line1ToX = newPath[1][1];
+          const line1ToY = newPath[1][2];
 
           for (let lP = 0, lenlP = lPath.length - 1; lP < lenlP; lP++) {
             const newLinePath: [string, ...number[]][] = [];
             newLinePath.push(["M", lPath[lP][1], lPath[lP][2]]);
             newLinePath.push(["L", lPath[lP + 1][1], lPath[lP + 1][2]]);
 
-            const line2_from_x = newLinePath[0][1];
-            const line2_from_y = newLinePath[0][2];
-            const line2_to_x = newLinePath[1][1];
-            const line2_to_y = newLinePath[1][2];
+            const line2FromX = newLinePath[0][1];
+            const line2FromY = newLinePath[0][2];
+            const line2ToX = newLinePath[1][1];
+            const line2ToY = newLinePath[1][2];
 
             const res = checkLineIntersection(
-              line1_from_x,
-              line1_from_y,
-              line1_to_x,
-              line1_to_y,
-              line2_from_x,
-              line2_from_y,
-              line2_to_x,
-              line2_to_y
+              line1FromX,
+              line1FromY,
+              line1ToX,
+              line1ToY,
+              line2FromX,
+              line2FromY,
+              line2ToX,
+              line2ToY
             );
             if (res.onLine1 && res.onLine2) {
               let newSegment: [string, ...number[]];
-              if (line2_from_y === line2_to_y) {
-                if (line2_from_x > line2_to_x) {
-                  newSegment = ["L", res.x + lineWith * 2, line2_from_y];
+              if (line2FromY === line2ToY) {
+                if (line2FromX > line2ToX) {
+                  newSegment = ["L", res.x + lineWith * 2, line2FromY];
                   lPath.splice(lP + 1, 0, newSegment);
                   newSegment = [
                     "C",
                     res.x + lineWith * 2,
-                    line2_from_y,
+                    line2FromY,
                     res.x,
-                    line2_from_y - lineWith * 4,
+                    line2FromY - lineWith * 4,
                     res.x - lineWith * 2,
-                    line2_from_y,
+                    line2FromY,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
                   line.attr("path", (lPath as unknown) as string);
                 } else {
-                  newSegment = ["L", res.x - lineWith * 2, line2_from_y];
+                  newSegment = ["L", res.x - lineWith * 2, line2FromY];
                   lPath.splice(lP + 1, 0, newSegment);
                   newSegment = [
                     "C",
                     res.x - lineWith * 2,
-                    line2_from_y,
+                    line2FromY,
                     res.x,
-                    line2_from_y - lineWith * 4,
+                    line2FromY - lineWith * 4,
                     res.x + lineWith * 2,
-                    line2_from_y,
+                    line2FromY,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
                   line.attr("path", (lPath as unknown) as string);
                 }
               } else {
-                if (line2_from_y > line2_to_y) {
-                  newSegment = ["L", line2_from_x, res.y + lineWith * 2];
+                if (line2FromY > line2ToY) {
+                  newSegment = ["L", line2FromX, res.y + lineWith * 2];
                   lPath.splice(lP + 1, 0, newSegment);
                   newSegment = [
                     "C",
-                    line2_from_x,
+                    line2FromX,
                     res.y + lineWith * 2,
-                    line2_from_x + lineWith * 4,
+                    line2FromX + lineWith * 4,
                     res.y,
-                    line2_from_x,
+                    line2FromX,
                     res.y - lineWith * 2,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);
                   line.attr("path", (lPath as unknown) as string);
                 } else {
-                  newSegment = ["L", line2_from_x, res.y - lineWith * 2];
+                  newSegment = ["L", line2FromX, res.y - lineWith * 2];
                   lPath.splice(lP + 1, 0, newSegment);
                   newSegment = [
                     "C",
-                    line2_from_x,
+                    line2FromX,
                     res.y - lineWith * 2,
-                    line2_from_x + lineWith * 4,
+                    line2FromX + lineWith * 4,
                     res.y,
-                    line2_from_x,
+                    line2FromX,
                     res.y + lineWith * 2,
                   ];
                   lPath.splice(lP + 2, 0, newSegment);

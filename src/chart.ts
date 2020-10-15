@@ -4,7 +4,7 @@ import { defaultConfig } from "./config";
 import Condition from "./symbol/condition";
 import Parallel from "./symbol/parallel";
 import { ParsedDrawOptions } from "./options";
-import FlowChartSymbol from "./symbol/util";
+import FlowChartSymbol from "./symbol/symbol";
 
 export default class FlowChart {
   options: ParsedDrawOptions;

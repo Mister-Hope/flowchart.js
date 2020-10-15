@@ -1,4 +1,4 @@
-import FlowChartSymbol from "./util";
+import FlowChartSymbol from "./symbol";
 import { Direction, SymbolOptions } from "../options";
 import FlowChart from "../chart";
 
@@ -132,17 +132,14 @@ export default class Parallel extends FlowChartSymbol {
   }
 
   render() {
-    if (this.path1_direction) {
+    if (this.path1_direction)
       this[this.path1_direction + "_symbol"] = this.path1_symbol;
-    }
 
-    if (this.path2_direction) {
+    if (this.path2_direction)
       this[this.path2_direction + "_symbol"] = this.path2_symbol;
-    }
 
-    if (this.path3_direction) {
+    if (this.path3_direction)
       this[this.path3_direction + "_symbol"] = this.path3_symbol;
-    }
 
     const lineLength = this.getAttr<number>("line-length") as number;
 
@@ -172,8 +169,6 @@ export default class Parallel extends FlowChartSymbol {
       }
     }
 
-    const self = this;
-
     if (this.left_symbol) {
       const leftPoint = this.getLeft();
 
@@ -182,22 +177,22 @@ export default class Parallel extends FlowChartSymbol {
         this.left_symbol.shiftX(
           -(this.group.getBBox().x + this.width + lineLength)
         );
-        (function shift() {
+        const shift = (): void => {
           let hasSymbolUnder = false;
-          let symb;
-          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
-            symb = self.chart.symbols[i];
+          let symbol;
+          for (let index = 0; index < this.chart.symbols.length; index++) {
+            symbol = this.chart.symbols[index];
 
             if (
-              !self.params["align-next"] ||
-              self.params["align-next"] !== "no"
+              !this.params["align-next"] ||
+              this.params["align-next"] !== "no"
             ) {
               const diff = Math.abs(
-                symb.getCenter().x - self.left_symbol.getCenter().x
+                symbol.getCenter().x - this.left_symbol!.getCenter().x
               );
               if (
-                symb.getCenter().y > self.left_symbol.getCenter().y &&
-                diff <= self.left_symbol.width / 2
+                symbol.getCenter().y > this.left_symbol!.getCenter().y &&
+                diff <= this.left_symbol!.width / 2
               ) {
                 hasSymbolUnder = true;
                 break;
@@ -206,11 +201,13 @@ export default class Parallel extends FlowChartSymbol {
           }
 
           if (hasSymbolUnder) {
-            if (self.left_symbol.symbolType === "end") return;
-            self.left_symbol.setX(symb.getX() + symb.width + lineLength);
+            if (this.left_symbol!.symbolType === "end") return;
+            this.left_symbol!.setX(symbol.getX() + symbol.width + lineLength);
             shift();
           }
-        })();
+        };
+
+        shift();
 
         this.left_symbol.isPositioned = true;
 
@@ -226,22 +223,22 @@ export default class Parallel extends FlowChartSymbol {
         this.right_symbol.shiftX(
           this.group.getBBox().x + this.width + lineLength
         );
-        (function shift() {
+        const shift = (): void => {
           let hasSymbolUnder = false;
           let symb;
-          for (let i = 0, len = self.chart.symbols.length; i < len; i++) {
-            symb = self.chart.symbols[i];
+          for (let index = 0; index < this.chart.symbols.length; index++) {
+            symb = this.chart.symbols[index];
 
             if (
-              !self.params["align-next"] ||
-              self.params["align-next"] !== "no"
+              !this.params["align-next"] ||
+              this.params["align-next"] !== "no"
             ) {
               const diff = Math.abs(
-                symb.getCenter().x - self.right_symbol.getCenter().x
+                symb.getCenter().x - this.right_symbol!.getCenter().x
               );
               if (
-                symb.getCenter().y > self.right_symbol.getCenter().y &&
-                diff <= self.right_symbol.width / 2
+                symb.getCenter().y > this.right_symbol!.getCenter().y &&
+                diff <= this.right_symbol!.width / 2
               ) {
                 hasSymbolUnder = true;
                 break;
@@ -250,11 +247,13 @@ export default class Parallel extends FlowChartSymbol {
           }
 
           if (hasSymbolUnder) {
-            if (self.right_symbol.symbolType === "end") return;
-            self.right_symbol.setX(symb.getX() + symb.width + lineLength);
+            if (this.right_symbol!.symbolType === "end") return;
+            this.right_symbol!.setX(symb.getX() + symb.width + lineLength);
             shift();
           }
-        })();
+        };
+
+        shift();
 
         this.right_symbol.isPositioned = true;
 
